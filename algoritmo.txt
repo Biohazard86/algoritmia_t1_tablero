@@ -1,0 +1,7 @@
+ALGORITMO:
+
+Sabemos que>
+    -El tablero de juegue consta de NxN casillas
+    -x0 e y0 son las posiciones iniciales, tipicamente 0,0
+    -x1 e y1 es la posicion de destino
+
