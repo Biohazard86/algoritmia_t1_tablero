@@ -30,6 +30,7 @@ y será la única del curso, para el resto habrá una segunda práctica, y ambas
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#define NO_OBSTACULO 8 // Porcentaje de casillas no obstaculos en el tablero (0-10) 
 
 
 //Funcion de presentacion que se ejecuta al inicio del programa
@@ -46,10 +47,10 @@ void presentacion(){
 //Funcion que genera el array de obstaculos del tablero
 void genera_obstaculos(int N, int *vector_obstaculos){
    int i, temp;
-   
+   srand (time(NULL));
    for(i=0; i<N; i++){
        temp = rand()%11;
-       if(temp > 8){
+       if(temp > NO_OBSTACULO){
            vector_obstaculos[i] = 1;
        }
        else{
@@ -68,22 +69,76 @@ void imprime_obstaculos(int N, int *vector_obstaculos){
     printf("\n");
 } 
 
+
+// Funcion que valida los parametros de entrada
 int comprobar_parametros(int N, int x1, int y1){
     if(N<=0 || x1<=0 || y1<=0 || x1>N || y1>N){
         return 0;
     }
     else{
-        return 1;
+        // N tiene que ser mayor de 2 para que el algoritmo funcione
+        if(N<=2){
+            return 0;
+        }
+        else{
+            return 1;
+        }  
     }
 }
 
 
 
 
+//Funcion que imprime la matriz tablero 
+void imprime_tablero(int N, int *tablero){
+    int i, j;
+    for(i=0; i<N; i++){
+        for(j=0; j<N; j++){
+            printf(" %d ", tablero[i*N+j]);
+        }
+        printf("\n");
+    }
+}
+
+
+//Funcion que limpia el tablero poniendo todos los valores a 0
+void limpia_tablero(int N, int *tablero){
+    int i, j;
+    for(i=0; i<N; i++){
+        for(j=0; j<N; j++){
+            tablero[i*N+j] = 0;
+        }
+    }
+}
+
+//Comprueba si en la casilla (x,y) hay un obstaculo y si lo hay lo quita
+void comprueba_posicion_final_inicio(int N, int *tablero, int x, int y){
+    if(tablero[x*N+y] == 1){
+        tablero[x*N+y] = 0;
+    }
+}
+
+
+// Funcion que calcula el camino mas corto para llegar de (1,1) a (N,N)
+int camino_mas_corto(int N, int *tablero, int x0, int y0, int x1, int y1){
+
+}
+    
+//Funcion que calcula los pasos minimos para llegar de (1,1) a (N,N)
+int pasos(int N, int *tablero, int x0, int y0, int x1, int y1){
+    
+
+    // En caso de que el punto de destino sea igual que el de inicio
+    if(x0 == x1 && y0 == y1){
+        return 0;
+    }
+    
+}
 
 // Funcion principal
 int main(int argc, char *argv[]){
 
+    // Definicio de las variables
     int N;                      // Numero de filas y columnas que va a tener el tablero
     int *vector_obstaculos;     // Vector que contiene los obstaculos del tablero
     int **matriz_tablero;       //Matriz que vamos a usar en funcion de las posiciones que nos pase el usuario. Es un puntero a punteros de enteros
@@ -91,6 +146,7 @@ int main(int argc, char *argv[]){
     int x0 = 0,y0 = 0;          // Posicion inicial del caballo  
     int x1,y1;                  // Posicion final del caballo
 
+    // Presentacion del programa
     presentacion();
 
     // Pedimos al usuario el numero de filas/columnas del tablero y el punto de destino
@@ -125,18 +181,43 @@ int main(int argc, char *argv[]){
     // Se imprime el array de obstaculos
     fprintf(stdout, "Obstaculos:\n");
     imprime_obstaculos(N*N, vector_obstaculos);
-    
 
-
-
-    
+    // Se reserva memoria para la matriz del tablero
     //solicitamos la memoria con calloc para la matriz en funcion de los argumentos que nos pase el usuario
     matriz_tablero = (int **)calloc(N, sizeof(int *));
     for(int i = 0; i < N; i++){
         matriz_tablero[i] = (int *)calloc(N, sizeof(int));
     }
-    
 
+    //Limpiamos la tabla poniendo todos sus valores a 0
+    limpia_tablero(N, *matriz_tablero);
+    
+    //Imprimimos la matriz del tablero
+    fprintf(stdout, "Tablero sin obstaculos:\n");
+    imprime_tablero(N, matriz_tablero[0]);
+
+    //Pasamos los obstaculos (cuando haya un 1 en el array de obstaculos) a la matriz del tablero
+    for(i=0; i<N*N; i++){
+        if(vector_obstaculos[i] == 1){
+            matriz_tablero[i/N][i%N] = 1;
+        }
+    }
+
+    //Imprimimos la matriz del tablero
+    fprintf(stdout, "Tablero con obstaculos:\n");
+    imprime_tablero(N, matriz_tablero[0]);
+
+    // Comprobamos que ni en la posicion final ni en la de inicio haya un obstaculo
+    comprueba_posicion_final_inicio(N, matriz_tablero[0], x0, y0);
+    comprueba_posicion_final_inicio(N, matriz_tablero[0], x1, y1);
+
+
+    //Imprimimos la matriz del tablero
+    fprintf(stdout, "Tablero con obstaculos:\n");
+    imprime_tablero(N, matriz_tablero[0]);
+
+    //se llama a la funcion que calcula el camino mas corto
+    camino_mas_corto(N, matriz_tablero, x0, y0, x1, y1);
 
 
 
