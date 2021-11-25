@@ -119,10 +119,7 @@ void comprueba_posicion_final_inicio(int N, int *tablero, int x, int y){
 }
 
 
-// Funcion que calcula el camino mas corto para llegar de (1,1) a (N,N)
-int camino_mas_corto(int N, int *tablero, int x0, int y0, int x1, int y1){
 
-}
     
 //Funcion que calcula los pasos minimos para llegar de (1,1) a (N,N)
 int pasos(int N, int *tablero, int x0, int y0, int x1, int y1){
@@ -135,6 +132,68 @@ int pasos(int N, int *tablero, int x0, int y0, int x1, int y1){
     
 }
 
+//Dice si una coordenada es posible, ya sea porque se va a negativo o porque se sale de fuera del rango de la matriz o hay un obstaculo en el tablero
+int es_posible(int N, int x, int y, int *tablero){
+    if(x<0 || y<0 || x>=N || y>=N){
+
+        return 0;
+    }
+    else{
+        // Comprobamos si hay un 1 en esa posicion del tablero (obstaculo)
+        if(tablero[x*N+y] == 1){
+            return 0;
+        }
+        else{
+            return 1;
+        }
+    }
+}
+
+//Recibe el tablero y la posicion actual y devuelve un array con todos los posibles puntos de destino
+int calcular_posibles_destinos(int N, int *tablero, int x, int y, int *posibles_destinos, int *matriz_visitados){
+    int x_temp, y_temp, i;
+
+    //Estos son los posibles movimientos del caballo
+    int vector_movimientos[8][2] = {{1,2},{2,1},{2,-1},{1,-2},{-1,2},{-2,1},{-2,-1},{-1,-2}};
+
+    //Vamos a realizar todos los posibles movimientos
+    for(i=0;i<8;i+2){
+        x_temp = x + vector_movimientos[i][0];
+        y_temp = y + vector_movimientos[i][1];
+        if(es_posible(N, x_temp, y_temp, tablero)){
+            // solicitamos memoria para posibles_destinos las coordenadas x e y
+            posibles_destinos = malloc(sizeof(int)*2);
+            posibles_destinos[i] = x_temp;
+            posibles_destinos[i+1] = y_temp;
+        }
+        
+    }
+    
+}
+
+
+//recorremos la matriz y ponemos todos los valores a 0
+void limpia_posibles_destinos(int N, int *posibles_destinos){
+    int i;
+    for(i=0; i<N; i++){
+        posibles_destinos[i] = 0;
+    }
+    
+}
+
+
+//Funcion que imprime los posibles destinos
+void imprime_posibles_destinos(int *posibles_destinos){
+    int i;
+    while(posibles_destinos[i] != NULL){
+        printf("%d\n", posibles_destinos[i]);
+        i++;
+    }
+}
+
+// Funcion que recibe la matriz de distancias y calcula la distancia entre dos puntos
+int calcular_distancias(){}
+
 // Funcion principal
 int main(int argc, char *argv[]){
 
@@ -142,6 +201,9 @@ int main(int argc, char *argv[]){
     int N;                      // Numero de filas y columnas que va a tener el tablero
     int *vector_obstaculos;     // Vector que contiene los obstaculos del tablero
     int **matriz_tablero;       //Matriz que vamos a usar en funcion de las posiciones que nos pase el usuario. Es un puntero a punteros de enteros
+    int **matriz_distancias;    //En esta matriz vamos a almacenar las distancias desde el punto de partida
+    int **posibles_destinos;    //En esta matriz vamos a almacenar los posibles destinos (Vector de 2x?)
+    int **matriz_visitados;     //En esta matriz vamos a almacenar los puntos visitados
     int i;                      // Contador
     int x0 = 0,y0 = 0;          // Posicion inicial del caballo  
     int x1,y1;                  // Posicion final del caballo
@@ -207,19 +269,9 @@ int main(int argc, char *argv[]){
     fprintf(stdout, "Tablero con obstaculos:\n");
     imprime_tablero(N, matriz_tablero[0]);
 
-    // Comprobamos que ni en la posicion final ni en la de inicio haya un obstaculo
-    comprueba_posicion_final_inicio(N, matriz_tablero[0], x0, y0);
-    comprueba_posicion_final_inicio(N, matriz_tablero[0], x1, y1);
-
-
-    //Imprimimos la matriz del tablero
-    fprintf(stdout, "Tablero con obstaculos:\n");
-    imprime_tablero(N, matriz_tablero[0]);
-
-    //se llama a la funcion que calcula el camino mas corto
-    camino_mas_corto(N, matriz_tablero, x0, y0, x1, y1);
-
-
+    //----------------------------------------------------------------------------------------------------------------------
+    //COMIENZO DEL ALGORITMO
+    //----------------------------------------------------------------------------------------------------------------------
 
 
 

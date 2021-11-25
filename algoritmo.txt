@@ -4,4 +4,59 @@ Sabemos que>
     -El tablero de juegue consta de NxN casillas
     -x0 e y0 son las posiciones iniciales, tipicamente 0,0
     -x1 e y1 es la posicion de destino
+Tenemos diferentes opciones:
+	1 - Si la posicion de inicio o de destino estan en diferentes columnas y filas(x0!=x1 y y0!=y1)
+	2 - Si la posicion de inicio o de destino estan en la misma columna o fila (x0 == x1 OR y0 == y1)
+	3 - Esquinas: Si alguno de los dos puntos esta en una esquina, entonces los pasos minimos son 4
+	
+	
+	
+	
+ALGORITMO
+1 - creamos las tablas visitado de NxN y las inicializamos a 0
+2 - creamos la tabla de movimientos, la cual almacena los numeros de movimientos desde la posicion inicial.
+3 - creamos el vector consultas, el cual almacenara "la cola" de los nodos hijos
+4 - Marcamos la casilla de inicio como visitada
+5 - hacer lo siguiente hasta que la cola este vacia o hasta que se llegue a la posicion deseada:
+    5.1 - sacar el primer elemento de la cola y ver si es la meta
+    5.2 - si es la meta retornar la matriz de movimientos
+    5.3 - visitar todas las posibles posiciones
 
+PSEUDO
+
+int minpasos(int A, int B, int C, int D, int E, int F) //TABLERO AxB INICIO C,D - FIN E,F
+{ 
+    //Movimientos del caballo
+    int dx[] = [ -2, -1, 1, 2, -2, -1, 1, 2 ]
+    int dy[] = [ -1, -2, -2, -1, 1, 2, 2, 1 ]
+  
+    // cola para almacenar las posiciones
+    Queue q
+    q.push([C, D]) 
+    bool visited[A + 1][B + 1] = {false}
+    visited[C][D] = true
+    int moves[A + 1][B + 1] = {0}
+    while (si q no esta vacia) { 
+        x = q.pop(); 
+        if (x[0] == E and x[1] == F) 
+            return moves[x[0]][x[1]]
+        // loop for all reachable states
+        for (int i = 0; i < 8; i++) { 
+            new_pos_x = x[0] + dx[i]
+            new_pos_y = x[1] + dy[i]
+            if (isInside(new_pos_x, new_pos_y, A, B) and !visited[new_pos_x][new_pos_y]) { 
+                visit[new_pos_x][new_pos_y] = true
+                moves[new_pos_x][new_pos_y] = moves[x[0]][x[1]] + 1
+                q.push([new_pos_x][new_pos_y])
+            }
+        } 
+    }
+    // If all possible locations visited and no target location found
+    return -1
+}
+// utility function
+bool isInside(int x, int y, int A, int B) { 
+    if (x >= 1 && x <= A && y >= 1 && y <= B) 
+        return true
+    return false
+}
