@@ -1,62 +1,30 @@
-ALGORITMO:
 
 Sabemos que>
     -El tablero de juegue consta de NxN casillas
     -x0 e y0 son las posiciones iniciales, tipicamente 0,0
-    -x1 e y1 es la posicion de destino
-Tenemos diferentes opciones:
-	1 - Si la posicion de inicio o de destino estan en diferentes columnas y filas(x0!=x1 y y0!=y1)
-	2 - Si la posicion de inicio o de destino estan en la misma columna o fila (x0 == x1 OR y0 == y1)
-	3 - Esquinas: Si alguno de los dos puntos esta en una esquina, entonces los pasos minimos son 4
+    -x1 e y1 es la posicion de destino, en este caso siempre N,N
+
 	
 	
-	
-	
+			
 ALGORITMO
-1 - creamos las tablas visitado de NxN y las inicializamos a 0
-2 - creamos la tabla de movimientos, la cual almacena los numeros de movimientos desde la posicion inicial.
-3 - creamos el vector consultas, el cual almacenara "la cola" de los nodos hijos
-4 - Marcamos la casilla de inicio como visitada
-5 - hacer lo siguiente hasta que la cola este vacia o hasta que se llegue a la posicion deseada:
-    5.1 - sacar el primer elemento de la cola y ver si es la meta
-    5.2 - si es la meta retornar la matriz de movimientos
-    5.3 - visitar todas las posibles posiciones
+1 - Creamos la tabla NxN que almacenara los pasos dados, todos a null menos los visitados que ira de desde 0 hasta el ultimo paso, los no visitados estan a NULL
+    Creamos la tabla NxNx2 que almacenara los padres para llegar a esa posicion, es decir si a la casilla 1,1 hemos llegado desde la 0,0 en la casilla 1,1 vamos a guardar 0,0. Los no visitados estan a NULL
+    Creamos la tabla NxN de obstaculos, la cual las casillas con obstaculo tendran un 1 y el resto un 0.
+    Creaamos el vector cola, donde almacenaremos los puntos a procesar
+    
+2 - Ponemos la casilla de salida como visitada y ponemos esta casilla en el primer puesto de la cola, para ser la primera en ser procesada.
+    En esta cola se meteran las casillas aun no visitadas, desde la cual se puede ir en la ultima comprobada.
 
-PSEUDO
+3 - hacer lo siguiente hasta que la cola este vacia o hasta que se llegue a la posicion deseada:
+    3.1 - Sacamos el primer elemento de la cola
+    3.2 - Comprobamos todas las posiciones a las que se puede ir desde dicho elemento y las guardamos en la cola si no han sido visitadas ya*
+    3.3 - Guardamos en la matriz de los padres estas posiciones y todas tienen como padre la que sacamos en el paso 3.1
+    3.3 - Comprobamos si alguna de las posiciones de la cola es la meta
+    
+    *Si una posicion ya ha sido visitada, esto significa que no tenemos que sobrescribir esa posicion con una menos optima.
 
-int minpasos(int A, int B, int C, int D, int E, int F) //TABLERO AxB INICIO C,D - FIN E,F
-{ 
-    //Movimientos del caballo
-    int dx[] = [ -2, -1, 1, 2, -2, -1, 1, 2 ]
-    int dy[] = [ -1, -2, -2, -1, 1, 2, 2, 1 ]
-  
-    // cola para almacenar las posiciones
-    Queue q
-    q.push([C, D]) 
-    bool visited[A + 1][B + 1] = {false}
-    visited[C][D] = true
-    int moves[A + 1][B + 1] = {0}
-    while (si q no esta vacia) { 
-        x = q.pop(); 
-        if (x[0] == E and x[1] == F) 
-            return moves[x[0]][x[1]]
-        // loop for all reachable states
-        for (int i = 0; i < 8; i++) { 
-            new_pos_x = x[0] + dx[i]
-            new_pos_y = x[1] + dy[i]
-            if (isInside(new_pos_x, new_pos_y, A, B) and !visited[new_pos_x][new_pos_y]) { 
-                visit[new_pos_x][new_pos_y] = true
-                moves[new_pos_x][new_pos_y] = moves[x[0]][x[1]] + 1
-                q.push([new_pos_x][new_pos_y])
-            }
-        } 
-    }
-    // If all possible locations visited and no target location found
-    return -1
-}
-// utility function
-bool isInside(int x, int y, int A, int B) { 
-    if (x >= 1 && x <= A && y >= 1 && y <= B) 
-        return true
-    return false
-}
+PSEUDOCODIGO
+
+
+
