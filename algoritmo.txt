@@ -25,6 +25,26 @@ ALGORITMO
     *Si una posicion ya ha sido visitada, esto significa que no tenemos que sobrescribir esa posicion con una menos optima.
 
 PSEUDOCODIGO
+----------------------------------------------------------------------------------------------------------------------
 
+funcion calcular_posibles_destinos
+	PARAMETROS:
+		entero N
+		entero tablero[][]
+		entero x, y
+		int cola[]
+		int matriz_padres[][][]
 
+	entero vector_movimientos[8][2] = {{1,2},{2,1},{2,-1},{1,-2},{-1,2},{-2,1},{-2,-1},{-1,-2}}
+	
+	desde 0 -> 8 ++
+		x_temp = x + vector_movimientos[i][0]
+		y_temp = y + vector_movimientos[i][1]
+		si es_posible(N, x_temp, y_temp, tablero[][])
+			posibles_destinos[i][0] = x_temp
+			posibles_destinos[i][1] = y_temp
+		FINSI
+	FIN DESDE
+FIN FUNCION
 
+----------------------------------------------------------------------------------------------------------------------
