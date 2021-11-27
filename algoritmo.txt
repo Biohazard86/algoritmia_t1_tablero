@@ -11,17 +11,17 @@ ALGORITMO
 1 - Creamos la tabla NxN que almacenara los visitados, 0 = no visitado / 1 = visitado
     Creamos la tabla NxNx2 que almacenara los padres para llegar a esa posicion, es decir si a la casilla 1,1 hemos llegado desde la 0,0 en la casilla 1,1 vamos a guardar 0,0. Los no visitados estan a NULL
     Creamos la tabla NxN de obstaculos, la cual las casillas con obstaculo tendran un 1 y el resto un 0.
-    Creaamos el vector cola, donde almacenaremos los puntos a procesar
+    Creaamos el vector cola, donde almacenaremos los puntos a procesar. Esto puede ser un vector dimensional, para la X y la Y
     Creamos la variable entera iteraccion la cual la inicializamos a 0
     
 2 - Ponemos la casilla de salida como visitada y ponemos esta casilla en el primer puesto de la cola, para ser la primera en ser procesada.
     En esta cola se meteran las casillas aun no visitadas, desde la cual se puede ir en la ultima comprobada.
 
 3 - hacer lo siguiente hasta que la cola este vacia o hasta que se llegue a la posicion deseada:
-    3.1 - Sacamos el primer elemento de la cola
-    3.2 - Comprobamos todas las posiciones a las que se puede ir desde dicho elemento y las guardamos en la cola si no han sido visitadas ya*
-    3.3 - Guardamos en la matriz de los padres estas posiciones y todas tienen como padre la que sacamos en el paso 3.1
-    3.3 - Comprobamos si la posicion del punto 3.1 es la meta.
+    3.1 - Sacamos el primer elemento de la cola y lo guardamos como padre en esta iteraccion.	------------------------------------------------------	extrae_cola
+    3.2 - Comprobamos todas las posiciones a las que se puede ir desde dicho elemento y las guardamos en la cola si no han sido visitadas ya*  -------  calcular_posibles_destinos + insertar_cola
+    3.3 - Guardamos en la matriz de los padres estas posiciones y todas tienen como padre la que sacamos en el paso 3.1	------------------------------  guarda_recorrido + 
+    3.3 - Comprobamos si la posicion del punto 3.1 es la meta.	--------------------------------------------------------------------------------------  comprueba_meta
     3.4 - Incrementamos la variable de iteraccion
     
     *Si una posicion ya ha sido visitada, esto significa que no tenemos que sobrescribir esa posicion con una menos optima.
@@ -152,6 +152,32 @@ FUNCION comprueba_meta devuelve entero
 	
 FIN FUNCION
 
+----------------------------------------------------------------------------------------------------------------------
+
+Esta funcion inserta un elemento en la cola. La recorremos hasta encontrarnos un NULL, que es donde insertaremos los nuevos valores. 0 para exito, 1 para error.
+
+FUNCION insertar_cola devuelve entero
+	PARAMETROS
+		entero x, y
+		entero cola[]
+		
+	para i=0 hasta i=NxN i++
+		si cola[i] == NULL entonces
+			si cola[i+1] entonces
+				cola[i] = x
+				cola[i+1] = y
+				retunr 0
+			si no
+				return 1 ya que hay un error
+			FIN SI
+		FIN SI
+	FIN PARA
+FIN FUNCION
+		
+----------------------------------------------------------------------------------------------------------------------
+
+
+	
 
 
 
