@@ -27,7 +27,7 @@ ALGORITMO
 PSEUDOCODIGO
 ----------------------------------------------------------------------------------------------------------------------
 
-funcion calcular_posibles_destinos
+FUNCION calcular_posibles_destinos devuelve entero
 	PARAMETROS:
 		entero N
 		entero tablero[][]
@@ -48,3 +48,42 @@ funcion calcular_posibles_destinos
 FIN FUNCION
 
 ----------------------------------------------------------------------------------------------------------------------
+
+FUNCION es_posible devuelve entero
+	PARAMETROS 
+	entero N
+	entero x, y
+	entero tablero[][]
+	
+	si X < 0 OR y < 0 OR x>=N OR y>=N entonces:
+		devolver 0
+	si no
+		si tablero[x][y] igual 1 entonces
+			devolver 0
+		si no
+			devolver 1
+		FIN SI
+	FIN SI
+FIN FUNCION
+		
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
