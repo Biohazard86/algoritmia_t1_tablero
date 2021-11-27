@@ -8,10 +8,11 @@ Sabemos que>
 	
 			
 ALGORITMO
-1 - Creamos la tabla NxN que almacenara los pasos dados, todos a null menos los visitados que ira de desde 0 hasta el ultimo paso, los no visitados estan a NULL
+1 - Creamos la tabla NxN que almacenara los visitados, 0 = no visitado / 1 = visitado
     Creamos la tabla NxNx2 que almacenara los padres para llegar a esa posicion, es decir si a la casilla 1,1 hemos llegado desde la 0,0 en la casilla 1,1 vamos a guardar 0,0. Los no visitados estan a NULL
     Creamos la tabla NxN de obstaculos, la cual las casillas con obstaculo tendran un 1 y el resto un 0.
     Creaamos el vector cola, donde almacenaremos los puntos a procesar
+    Creamos la variable entera iteraccion la cual la inicializamos a 0
     
 2 - Ponemos la casilla de salida como visitada y ponemos esta casilla en el primer puesto de la cola, para ser la primera en ser procesada.
     En esta cola se meteran las casillas aun no visitadas, desde la cual se puede ir en la ultima comprobada.
@@ -20,13 +21,15 @@ ALGORITMO
     3.1 - Sacamos el primer elemento de la cola
     3.2 - Comprobamos todas las posiciones a las que se puede ir desde dicho elemento y las guardamos en la cola si no han sido visitadas ya*
     3.3 - Guardamos en la matriz de los padres estas posiciones y todas tienen como padre la que sacamos en el paso 3.1
-    3.3 - Comprobamos si alguna de las posiciones de la cola es la meta
+    3.3 - Comprobamos si la posicion del punto 3.1 es la meta.
+    3.4 - Incrementamos la variable de iteraccion
     
     *Si una posicion ya ha sido visitada, esto significa que no tenemos que sobrescribir esa posicion con una menos optima.
 
 PSEUDOCODIGO
 ----------------------------------------------------------------------------------------------------------------------
 
+Con esta funcion comprobamos todos los posibles destinos a los que podemos ir desde un punto dado.
 FUNCION calcular_posibles_destinos devuelve entero
 	PARAMETROS:
 		entero N
@@ -34,6 +37,8 @@ FUNCION calcular_posibles_destinos devuelve entero
 		entero x, y
 		int cola[]
 		int matriz_padres[][][]
+		para llevar un control de si se ha podido acceder a alguna posicion o no entonces vamos a crear la siguiente var
+		int posible_mover = 0
 
 	entero vector_movimientos[8][2] = {{1,2},{2,1},{2,-1},{1,-2},{-1,2},{-2,1},{-2,-1},{-1,-2}}
 	
@@ -43,17 +48,26 @@ FUNCION calcular_posibles_destinos devuelve entero
 		si es_posible(N, x_temp, y_temp, tablero[][])
 			posibles_destinos[i][0] = x_temp
 			posibles_destinos[i][1] = y_temp
+			posible_mover++
 		FINSI
 	FIN DESDE
+	
+	si posible_mover != 0 entonces
+		return 1
+	si no
+		return 0
+	FINSI
+	
 FIN FUNCION
 
 ----------------------------------------------------------------------------------------------------------------------
 
+Esta funcion ayuda a la anterior a saber si un punto es un obstaculo o si esta dentro del rango de NxN
 FUNCION es_posible devuelve entero
 	PARAMETROS 
-	entero N
-	entero x, y
-	entero tablero[][]
+		entero N
+		entero x, y
+		entero tablero[][]
 	
 	si X < 0 OR y < 0 OR x>=N OR y>=N entonces:
 		devolver 0
@@ -68,15 +82,75 @@ FIN FUNCION
 		
 ----------------------------------------------------------------------------------------------------------------------
 
+Esta funcion comprueba si ya ha sido visitado para si poderlo ingnorar
+FUNCION comprueba_visitado devuelve entero
+	PARAMETROS:
+		entero x, y
+		entero tabla_visitados[][]
+		
+	si tabla_visitados[x][y] == NULL entonces
+		devuelve 0
+	si no
+		devuelve 1
+	FINSI
+	
+FINFUNCION
 
+----------------------------------------------------------------------------------------------------------------------
+Esta funcion extrae de la cola y mueve al resto una posicion menos para que no se quede con el primer elemento vacio
 
+FUNCION extrae_cola devuelve entero
+	PARAMETROS
+		entero n
+		entero cola[n]
+		entero *x, *y
+		
+	*x = cola[0]
+	*y = cola[1]
+		
+	desde i=0 hasta n-1 hacer
+		//En cada iteraccion aumentamos dos
+		SIN ACABAR
 
+	FIN DESDE		
+FUN FUNCION
 
+----------------------------------------------------------------------------------------------------------------------
 
+Con esta funcion guardamos en la matriz NxNx2 los datos
 
+FUNCION guarda_recorrido
+	PARAMETROS
+		entero iteraccion
+		entero posicion_x, posicion_y
+		entero padre_x, padre_y //Casilla de la que viene
+		entero tabla_ruta[][][]
+		entero tablero[][]
+	
+	tabla_ruta[posicion_x][posicion_y][0] = iteracion
+	tabla_ruta[posicion_x][posicion_y][1] = padre_x
+	tabla_ruta[posicion_x][posicion_y][2] = padre_y
+	
+	tablero[posicion_x][posicion_y] = 1
+	
+FIN FUNCION
 
+----------------------------------------------------------------------------------------------------------------------
 
+Esta funcion comprueba si se ha llegado a la meta
 
+FUNCION comprueba_meta devuelve entero
+	PARAMETROS
+		entero x, y
+		entero meta_x, meta_y
+		
+	si x=meta_x && y=meta_y entonces
+		devolver 1
+	si no
+		devolver 0
+	FINSI
+	
+FIN FUNCION
 
 
 
