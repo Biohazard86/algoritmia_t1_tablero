@@ -9,7 +9,7 @@ Sabemos que>
 			
 ALGORITMO
 1 - Creamos la tabla NxN que almacenara los visitados, 0 = no visitado / 1 = visitado
-    Creamos la tabla NxNx2 que almacenara los padres para llegar a esa posicion, es decir si a la casilla 1,1 hemos llegado desde la 0,0 en la casilla 1,1 vamos a guardar 0,0. Los no visitados estan a NULL
+    Creamos la tabla NxNx3 que almacenara los padres para llegar a esa posicion, es decir si a la casilla 1,1 hemos llegado desde la 0,0 en la casilla 1,1 vamos a guardar 0,0. Los no visitados estan a NULL
     Creamos la tabla NxN de obstaculos, la cual las casillas con obstaculo tendran un 1 y el resto un 0.
     Creaamos el vector cola, donde almacenaremos los puntos a procesar. Esto puede ser un vector dimensional, para la X y la Y
     Creamos la variable entera iteraccion la cual la inicializamos a 0
@@ -35,7 +35,7 @@ FUNCION calcular_posibles_destinos devuelve entero
 		entero N
 		entero tablero[][]
 		entero x, y
-		int cola[]
+		int cola[][]
 		int matriz_padres[][][]
 		para llevar un control de si se ha podido acceder a alguna posicion o no entonces vamos a crear la siguiente var
 		int posible_mover = 0
@@ -102,7 +102,7 @@ Esta funcion extrae de la cola y mueve al resto una posicion menos para que no s
 FUNCION extrae_cola devuelve entero
 	PARAMETROS
 		entero n
-		entero cola[n]
+		entero cola[][]
 		entero *x, *y
 		
 	*x = cola[0]
@@ -159,7 +159,7 @@ Esta funcion inserta un elemento en la cola. La recorremos hasta encontrarnos un
 FUNCION insertar_cola devuelve entero
 	PARAMETROS
 		entero x, y
-		entero cola[]
+		entero cola[][]
 		
 	para i=0 hasta i=NxN i++
 		si cola[i] == NULL entonces
