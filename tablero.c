@@ -453,9 +453,57 @@ int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int i
 
 
 
+//----------------------------------------------------------------------------------------------------------------------
+// Funcion reconstruir_camino
+//----------------------------------------------------------------------------------------------------------------------
+// Funcion que se llama una vez acabada la ejecucion y reconstruye el camino desde la meta hasta el punto inicial
+// Usa la matriz de padres para reconstruir el camino
+//----------------------------------------------------------------------------------------------------------------------
+// PARAMETROS
+//      matriz_padres: matriz de los padres donde esta la informacion
+//----------------------------------------------------------------------------------------------------------------------
+
+int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_destino, int iteraccion){
+
+    int x_ini,y_ini, x_fin, y_fin, iteraccion_ruta = 0, i;
+
+    //Nos situamos en la posicion de destino x,y
+    x_fin=x_destino;
+    y_fin=y_destino;
+
+    fprintf(stdout, "La ruta desde el fin hasta el inicio es:\n");
+
+
+    while ((x_ini != 0) || (y_ini != 0)){
+        
+        // Nos movemos al punto padre (cogemos los datos desde donde se llego a esa casilla)
+        x_ini=matriz_padres[x_fin][y_fin][1];
+        y_ini=matriz_padres[x_fin][y_fin][2];
+
+        //Pedimos memoria con calloc para el vector ruta
+        ruta = (int **)calloc(1, sizeof(int *));
+        for(int i = 0; i < iteraccion_ruta; i++){
+            ruta[i] = (int *)calloc(1, sizeof(int));
+        }
 
 
 
+        // Insertamos el punto en la ruta
+        ruta[0][0]=x_ini;
+        ruta[0][1]=y_ini;
+        iteraccion_ruta++;  // Incrementamos para comprobar que nos sale los mismo que con el que se nos pasa mediante parametro
+
+        // Y ahora ponemos el inicio como final
+        x_fin=x_ini;
+        y_fin=y_ini;
+
+
+        // Imprimimos la ruta
+        fprintf(stdout, "%d, %d\n", x_ini, y_ini);
+    }
+    
+    
+}
 
 
 
@@ -489,6 +537,7 @@ int main(int argc, char *argv[]){
     int *tam_cola_ocupado = 0;   // Tamaño de la cola ocupada
     int flag_continuar = TRUE;  // Bandera para saber si seguimos o no
     int x_temporal, y_temporal; // Posiciones temporales para almacenar las posiciones de los destinos
+    int **ruta_seguida;         // Vector que almacena la ruta seguida para mostrarla al finalizar la ejecucion
 
 
     // Presentacion del programa
@@ -574,6 +623,8 @@ int main(int argc, char *argv[]){
     //COMIENZO DEL ALGORITMO
     //----------------------------------------------------------------------------------------------------------------------
 
+    fprintf(stdout, "Comienza el algoritmo\n");
+
     // Ponemos la casilla de salida como visitada
     matriz_visitados[x0][y0] = 1;
 
@@ -583,8 +634,12 @@ int main(int argc, char *argv[]){
     iteraciones++;
 
 
+    fprintf(stdout, "Se ha cargado la posicion inicial y se procede al bucle.\n");
+
     // hacemos esto hasta que la bandera este a FALSE
     while(flag_continuar){
+
+        fprintf(stdout, "Iteracion %d\n", iteraciones);
 
         // Extraemos el primer valor de la cola y los guardamos en vars temporales
         x_temporal = posibles_destinos[0][0];
@@ -594,7 +649,7 @@ int main(int argc, char *argv[]){
 
         // Calculamos a las posiciones que se pueden ir desde la casilla que acabamos de extraer
         comprobar_posibles_destinos(N, matriz_tablero, x_temporal, y_temporal, posibles_destinos, matriz_visitados, tam_cola, tam_cola_ocupado);
-
+_destino,
         //int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int iteraccion, int **cola, int *tam_cola, int *tam_cola_ocupado)
         //Insertamos en la matriz de padres los valores de la cola
         insertar_matriz_padres(x_temporal, y_temporal, matriz_padres, iteraciones, posibles_destinos, tam_cola, tam_cola_ocupado);
@@ -616,7 +671,9 @@ int main(int argc, char *argv[]){
         iteraciones++;      // Las iteracciones que llevamos/pasos hasta este punto
     }
 
-
+    // int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_destino, int iteraccion)
+    // Reconstruimos la ruta
+    reconstruir_camino(matriz_padres, ruta_seguida, x1, y1, iteraciones);
 
 
 

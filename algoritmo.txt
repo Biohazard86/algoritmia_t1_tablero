@@ -26,6 +26,8 @@ ALGORITMO
     
     *Si una posicion ya ha sido visitada, esto significa que no tenemos que sobrescribir esa posicion con una menos optima.
 
+4 - Reconstruir la ruta que se ha seguido para mostrarla por pantalla --------------------------------------------------------------------------------  reconstruir_camino
+
 PSEUDOCODIGO
 ----------------------------------------------------------------------------------------------------------------------
 
@@ -176,7 +178,27 @@ FIN FUNCION
 		
 ----------------------------------------------------------------------------------------------------------------------
 
+Esta funcion reconstruye el camino desde el final hasta el inicio
 
+FUNCION reconstruir_camino devuelve entero
+	PARAMETROS
+		entero matriz_padres
+		entero ruta
+		entero x_destino, y_destino, iteraccion
+	VARS
+		entero x_ini, y_ini, x_fin, y_fin, iteraccion_ruta
+
+
+	x_ini = x_destino
+	y_ini = y_destino
+
+	mientras x_ini != 0 & y_ini !=0 hacer:
+
+
+
+	FIN mientras
+
+FIN FUNCION
 	
 
 
