@@ -10,6 +10,9 @@ Sabemos que>
 ALGORITMO
 1 - Creamos la tabla NxN que almacenara los visitados, 0 = no visitado / 1 = visitado
     Creamos la tabla NxNx3 que almacenara los padres para llegar a esa posicion, es decir si a la casilla 1,1 hemos llegado desde la 0,0 en la casilla 1,1 vamos a guardar 0,0. Los no visitados estan a NULL
+    matriz_padres[][][0] -> Pasos para llegar a esa casilla
+    matriz_padres[][][1] -> Coordenada X del padre para llegar a esa cailla
+    matriz_padres[][][2] -> Coordenada Y del padre para llegar a esa casilla
     Creamos la tabla NxN de obstaculos, la cual las casillas con obstaculo tendran un 1 y el resto un 0.
     Creaamos el vector cola, donde almacenaremos los puntos a procesar. Esto puede ser un vector dimensional, para la X y la Y
     Creamos la variable entera iteraccion la cual la inicializamos a 0
