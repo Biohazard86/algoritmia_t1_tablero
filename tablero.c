@@ -42,7 +42,7 @@ ALGORITMO
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define NO_OBSTACULO 8 // Porcentaje de casillas no obstaculos en el tablero (0-10) 
+#define NO_OBSTACULO 7 // Porcentaje de casillas no obstaculos en el tablero (0-10) 
 #define FALSE 0
 #define TRUE 1
 
