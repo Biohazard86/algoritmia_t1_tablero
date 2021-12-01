@@ -696,5 +696,15 @@ int main(int argc, char *argv[]){
 
     // Liberamos la memoria solicitada para el tablero.
     free(matriz_tablero);
+    // Liberamos la memoria solicitada para la matriz de visitados.
+    free(matriz_visitados);
+    // Liberamos la memoria solicitada para la matriz de padres.
+    free(matriz_padres);
+    // Liberamos la memoria solicitada para la cola de posibles destinos.
+    free(posibles_destinosx);
+    free(posibles_destinosy);
+    
+
+
 
 }
