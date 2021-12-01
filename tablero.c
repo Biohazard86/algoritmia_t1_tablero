@@ -45,6 +45,7 @@ ALGORITMO
 #define NO_OBSTACULO 6 // Probabilidad de que una casilla no sea obstaculo (0-10)
 #define FALSE 0
 #define TRUE 1
+#define DEBUG 1         // 1 = activa, 0 = desactiva
 
 
 
@@ -511,6 +512,37 @@ int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_de
 
 
 
+
+//----------------------------------------------------------------------------------------------------------------------
+// Funcion contar_buffer
+//----------------------------------------------------------------------------------------------------------------------
+// Funcion que cuenta los elementos que hay en el buffer
+//----------------------------------------------------------------------------------------------------------------------
+// PARAMETROS
+//      cola_x: cola de coordenadas x
+//      cola_y: cola de coordenadas y
+//      N: tamaño del tablero
+//----------------------------------------------------------------------------------------------------------------------
+
+int contar_buffer(int *cola_x, int *cola_y, int N){
+
+    int tam_cola = N*N, i, numero_elementos = 0;
+
+    for(i=0;i<tam_cola;++i)
+    {
+        if((cola_x[i] >= 0) && (cola_y[i] >= 0))
+        {
+            numero_elementos++;
+            if(DEBUG){
+                printf(" ->Incremento contador buffer\n");
+            }
+        }
+    }
+
+    return numero_elementos;
+}
+
+
 //----------------------------------------------------------------------------------------------------------------------
 // Funcion main
 //----------------------------------------------------------------------------------------------------------------------
@@ -659,6 +691,12 @@ int main(int argc, char *argv[]){
         // Extraemos el primer valor de la cola y los guardamos en vars temporales
         x_temporal = posibles_destinosx[0];
         y_temporal = posibles_destinosy[0];
+
+        if(DEBUG){
+            fprintf(stdout, "Se ha extraido la casilla %d,%d\n", x_temporal, y_temporal);
+        }
+        
+
         //int extraer_cola( int *cola_x, int *cola_y, int *x,int *y, int N){
         extraer_cola(posibles_destinosx, posibles_destinosy, &x_temporal, &y_temporal, N);
 
@@ -681,7 +719,14 @@ int main(int argc, char *argv[]){
         if(tam_cola_ocupado == 0){
             flag_continuar = 0;
         }
+        if(contar_buffer(posibles_destinosx, posibles_destinosy, N) == 0){
+            flag_continuar = 0;
+        }
+        
 
+        if(DEBUG){
+            fprintf(stdout, "El valor de flag_continuar es %d .\n", flag_continuar);
+        }
 
 
         // Incrementamos la iteracion
@@ -703,7 +748,7 @@ int main(int argc, char *argv[]){
     // Liberamos la memoria solicitada para la cola de posibles destinos.
     free(posibles_destinosx);
     free(posibles_destinosy);
-    
+
 
 
 
