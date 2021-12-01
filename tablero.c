@@ -42,7 +42,7 @@ ALGORITMO
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define NO_OBSTACULO 7 // Porcentaje de casillas no obstaculos en el tablero (0-10) 
+#define NO_OBSTACULO 6 // Probabilidad de que una casilla no sea obstaculo (0-10)
 #define FALSE 0
 #define TRUE 1
 
@@ -76,12 +76,13 @@ void presentacion(){
 //----------------------------------------------------------------------------------------------------------------------
 
 void genera_obstaculos(int N, int *vector_obstaculos){
-   int i, temp;
+   int i, temp, contador_obstaculos = 0;
    srand (time(NULL));
    for(i=0; i<N; i++){
        temp = rand()%11;
-       if(temp > NO_OBSTACULO){
+       if((temp > NO_OBSTACULO) && (contador_obstaculos < N)){
            vector_obstaculos[i] = 1;
+            contador_obstaculos++;   
        }
        else{
            vector_obstaculos[i] = 0;
@@ -234,7 +235,7 @@ int es_posible(int N, int x, int y, int **tablero){
 //----------------------------------------------------------------------------------------------------------------------
 // Funcion insertar_cola
 //----------------------------------------------------------------------------------------------------------------------
-// Funcion que recibe un punto y lo inserta en la cola
+// Funcion que recibe un punto y lo inserta en la cola en el ultimo lugar posible
 //----------------------------------------------------------------------------------------------------------------------
 // PARAMETROS
 //      x: coordenada x del punto inicio
@@ -243,26 +244,18 @@ int es_posible(int N, int x, int y, int **tablero){
 //      y_meta: coordenada y del punto meta
 //----------------------------------------------------------------------------------------------------------------------
 
-int insertar_cola(int x, int y, int **cola,int *tam_cola, int *tam_cola_ocupado){
-    // Vamos al ultimo ocupado +1
+int insertar_cola(int x, int y, int *cola_x, int *cola_y, int N){
+    int i, tam_vector = N*N;
 
-    // Comprobamos que donde vamos a escribir haya memoria
-    if(*tam_cola_ocupado < *tam_cola){
-        cola[*tam_cola_ocupado+1][0]=x;
-        cola[*tam_cola_ocupado+1][1]=y;
-
-        tam_cola_ocupado++;
-    }
-    else{
-        //reservamos memoria con calloc en la cola
-        cola = (int **)calloc(1,sizeof(int *));
-        cola[*tam_cola_ocupado+1] = (int *)calloc(1,sizeof(int));
-
-        cola[*tam_cola_ocupado+1][0]=x;
-        cola[*tam_cola_ocupado+1][1]=y;
-
-        tam_cola_ocupado++;
-        tam_cola++;
+    // Recorremos la cola hasta encontrar un numero negativo
+    for(i=0; i<tam_vector; i++){
+        if((cola_x[i] < 0) && (cola_y[i] < 0)){
+            // Si encontramos un numero negativo, insertamos el punto en esa posicion, ya que esta libre
+            cola_x[i] = x;
+            cola_y[i] = y;
+            return 1;
+        }
+        
     }
     
 
@@ -285,9 +278,10 @@ int insertar_cola(int x, int y, int **cola,int *tam_cola, int *tam_cola_ocupado)
 //      matriz_padres: matriz de padres y visitados
 //----------------------------------------------------------------------------------------------------------------------
 
-int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int **cola, int **matriz_visitados, int *tam_cola, int *tam_cola_ocupada){
+int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int *cola_x, int *cola_y, int **matriz_visitados){
     int posible_mover=0;
 
+    // Todos los movimientos posibles que puede hacer el caballo en el tablero
     int vector_movimientos[8][2] = {{1,2},{2,1},{2,-1},{1,-2},{-1,2},{-2,1},{-2,-1},{-1,-2}};
     // for desde 0 a 8 para realizar todos los posibles movimientos
     for(int i=0; i<8; i++){
@@ -297,10 +291,9 @@ int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int **cola, 
         // Si es posible moverse a esa posicion
         if(es_posible(N, x_temp, y_temp, tablero)){     // Si es posible moverse a esa posicion
             if(matriz_visitados[x_temp][y_temp] != 1){  // Si no hemos visitado esa posicion
-                cola[i][0] = x_temp;
-                cola[i][1] = y_temp;
                 posible_mover++;
-                insertar_cola(x_temp, y_temp, cola, tam_cola, tam_cola_ocupada);
+                //int insertar_cola(int x, int y, int *cola_x, int *cola_y, int N){
+                insertar_cola(x_temp, y_temp, cola_x, cola_y, N);
             }
         }
     }
@@ -355,27 +348,34 @@ int comprueba_visitado(int N, int x, int y, int ***matriz_padres){
 //      y: coordenada y del punto
 //----------------------------------------------------------------------------------------------------------------------
 
-int extraer_cola( int *tam_vec, int *tam_vec_ocupado, int **cola, int x,int y){
+int extraer_cola( int *cola_x, int *cola_y, int *x,int *y, int N){
     
-    x= cola[0][0];
-    y= cola[0][1];
+    int tam_vector = N*N, i;
 
-    // Recorremos todo el vector
-    for(int i=0;i<*tam_vec;++i)
-    {
-        //i es destino
-        //i+1 es origen
+    //Extraemos el primer elemento de la cola
+    if((cola_x[0] >= 0) && (cola_y[0] >= 0)){
+        *x = cola_x[0];
+        *y = cola_y[0];
+    }
+    else{
+        // Esto significa que la cola esta vacia y no hay nada que extraer
+        return 0;
+    }
+    
 
-        // Si el tamanio del vector
-        if(*tam_vec_ocupado < i){
-            cola[i][0]=cola[i+1][0];
-            cola[i][1]=cola[i+1][1];
+    
+    for(int i=0;i<tam_vector;++i){
+        // Recorremos todo el vector para mover todos los elementos una posicion hacia la izquierda si no es negativo
+        if((cola_x[i] >= 0) && (cola_y[i] >= 0)){
+            cola_x[i] = cola_x[i+1];
+            cola_y[i] = cola_y[i+1];
         }
         else{
-            //Para la parte no ocupada del vector
-            cola[i][0]=-1;
-            cola[i][1]=-1;
-        }
+            cola_x[i] = -1;
+            cola_y[i] = -1;
+        }      
+
+        
 
     }
 }
@@ -421,34 +421,36 @@ int comprueba_meta(int x,int y, int meta_x,int meta_y){
 //      matriz_padres: matriz de los padres
 //----------------------------------------------------------------------------------------------------------------------
 
-int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int iteraccion, int **cola, int *tam_cola, int *tam_cola_ocupado){
+int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int iteraccion, int *cola_x, int *cola_y,int N){
 
-    int x_temp,y_temp;
+    int x_temp,y_temp, tam_cola = N*N, i;
 
     // recorremos toda la cola para almacenar los valores que haya en ella
-    for(int i=0;i<*tam_cola_ocupado;++i)
+    for(i=0;i<tam_cola;++i)
     {
-        x_temp = cola[i][0];
-        y_temp = cola[i][1];
-
-        // Realizamos una comprobacion de errores que no es necesaria pero nunca esta de mas
-        // Si en el punto hay algo diferente a un 0 no debemos sobreescribirlo
-        if(matriz_padres[x_temp][y_temp][0] != 0){
-            return 0;
-        }
-        else{
-            // Si no hay nada, lo insertamos
-            matriz_padres[x_temp][y_temp][0]=iteraccion;          // Los pasos que hemos dado para llegar ahi
-            matriz_padres[x_temp][y_temp][1]=x_padre;             // La coordenada x del punto padre (el punto que hemos llegado de)
-            matriz_padres[x_temp][y_temp][2]=y_padre;             // La coordenada y del punto padre (el punto que hemos llegado de)
-            return 1;                                               // Significa que todo ha ido bien
-        }
-        
-
-    }
+        // Cogemos los elementos de la cola que sean positivos
+        if((cola_x[i] >= 0) && (cola_y[i] >= 0))
+        {
+            x_temp = cola_x[i];
+            y_temp = cola_y[i];
+            // Insertamos los valores en la matriz de padres
+            // Realizamos una comprobacion de errores que no es necesaria pero nunca esta de mas
+            // Si en el punto hay algo diferente a un 0 no debemos sobreescribirlo
+            if(matriz_padres[x_temp][y_temp][0] != 0){
+                return 0; // Error, algo ha salido mal y lo indicamos
+            }
+            else{
+                // Si no hay nada, lo insertamos
+                matriz_padres[x_temp][y_temp][0]=iteraccion;          // Los pasos que hemos dado para llegar ahi
+                matriz_padres[x_temp][y_temp][1]=x_padre;             // La coordenada x del punto padre (el punto que hemos llegado de)
+                matriz_padres[x_temp][y_temp][2]=y_padre;             // La coordenada y del punto padre (el punto que hemos llegado de)
+                return 1;                                               // Significa que todo ha ido bien
+            }// FIN else
+        }// FIN IF
+    }// FIN FOR
     
     
-}
+}// FIN FUNCION insertar_matriz_padres
 
 
 
@@ -527,7 +529,8 @@ int main(int argc, char *argv[]){
     int **matriz_visitados;     // Matriz de visitados 0 si no ha sido visitado, 1 si si lo ha sido
     int *vector_obstaculos;     // Vector que contiene los obstaculos del tablero
     int **matriz_tablero;       //Matriz que vamos a usar en funcion de las posiciones que nos pase el usuario. Es un puntero a punteros de enteros
-    int **posibles_destinos;    //En esta matriz vamos a almacenar los posibles destinos (Vector de 2x?)
+    int *posibles_destinosx;   //En esta matriz vamos a almacenar los posibles destinos
+    int *posibles_destinosy;   //En esta matriz vamos a almacenar los posibles destinos  
     int ***matriz_padres;       //Matriz de NxNn3 En ests matriz vamos a almacenar la posicion respecto el inicio m[][][0], la coordenada x m[][][1]y la coordenada y m[][][2]
     int i, j, k;                      // Contador
     int iteraciones;            // Contador de iteraciones
@@ -616,6 +619,18 @@ int main(int argc, char *argv[]){
             matriz_padres[i][j] = (int *)calloc(3, sizeof(int));
         }
     }
+
+    //Reservamos memoria para la cola de posibles destinos
+    // Vamos a reservar n*n posiciones para los posibles destinos
+    // De esta forma podriamos guardar toda la matriz sin procesar si hiciese falta.
+    posibles_destinosx = (int *)calloc(N*N, sizeof(int));
+    posibles_destinosy = (int *)calloc(N*N, sizeof(int));
+
+    // ponemos en estos dos vectores valores negativos para indicar que estan libres.
+    for(j=0; j<N*N; j++){
+        posibles_destinosx[j] = -1;
+        posibles_destinosy[j] = -1;
+    }
     
     
     
@@ -629,8 +644,8 @@ int main(int argc, char *argv[]){
     matriz_visitados[x0][y0] = 1;
 
     // introducimos la casilla de inicio en la cola
-    //int insertar_cola(int x, int y, int **cola,int *tam_cola, int *tam_cola_ocupado){
-    insertar_cola(x0, y0, posibles_destinos, tam_cola, tam_cola_ocupado);
+    //int insertar_cola(int x, int y, int *cola_x, int *cola_y, int N){
+    insertar_cola(x0, y0, posibles_destinosx, posibles_destinosy, N);
     iteraciones++;
 
 
@@ -642,17 +657,19 @@ int main(int argc, char *argv[]){
         fprintf(stdout, "Iteracion %d\n", iteraciones);
 
         // Extraemos el primer valor de la cola y los guardamos en vars temporales
-        x_temporal = posibles_destinos[0][0];
-        y_temporal = posibles_destinos[0][1];
-        //int extraer_cola( int *tam_vec, int *tam_vec_ocupado, int **cola, int x,int y){
-        extraer_cola(tam_cola, tam_cola_ocupado, posibles_destinos, x_temporal, y_temporal);
+        x_temporal = posibles_destinosx[0];
+        y_temporal = posibles_destinosy[0];
+        //int extraer_cola( int *cola_x, int *cola_y, int *x,int *y, int N){
+        extraer_cola(posibles_destinosx, posibles_destinosy, &x_temporal, &y_temporal, N);
 
         // Calculamos a las posiciones que se pueden ir desde la casilla que acabamos de extraer
-        comprobar_posibles_destinos(N, matriz_tablero, x_temporal, y_temporal, posibles_destinos, matriz_visitados, tam_cola, tam_cola_ocupado);
-_destino,
-        //int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int iteraccion, int **cola, int *tam_cola, int *tam_cola_ocupado)
+        // int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int *cola_x, int *cola_y, int **matriz_visitados){
+        comprobar_posibles_destinos(N, matriz_tablero, x_temporal, y_temporal, posibles_destinosx, posibles_destinosy, matriz_visitados);
+
+        
         //Insertamos en la matriz de padres los valores de la cola
-        insertar_matriz_padres(x_temporal, y_temporal, matriz_padres, iteraciones, posibles_destinos, tam_cola, tam_cola_ocupado);
+        //int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int iteraccion, int *cola_x, int *cola_y,int N){
+        insertar_matriz_padres(x_temporal, y_temporal, matriz_padres, iteraciones, posibles_destinosx, posibles_destinosy, N);
 
         //Comprobamos si es la meta el punto en el que estamos
         if(comprueba_meta(x_temporal, y_temporal, N, N)){
