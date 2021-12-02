@@ -46,6 +46,7 @@ ALGORITMO
 #define FALSE 0
 #define TRUE 1
 #define DEBUG 0         // 1 = activa, 0 = desactiva
+#define ASEGURAR_META 0 // Se asegura de que en la meta no haya obstaculos si esta a 1. Si esta a 0 no hace esa comprobacion
 
 
 
@@ -76,20 +77,26 @@ void presentacion(){
 //      vector_obstaculos: array de obstaculos
 //----------------------------------------------------------------------------------------------------------------------
 
-void genera_obstaculos(int N, int *vector_obstaculos){
-   int i, temp, contador_obstaculos = 0;
+void genera_obstaculos(int N, int **tablero,int **matriz_visitados){
+   int i, temp1, temp2, contador_obstaculos = 0;
    srand (time(NULL));
    for(i=0; i<N; i++){
-       temp = rand()%11;
-       if((temp > NO_OBSTACULO) && (contador_obstaculos < N)){
-           if((i != 0) && (i != (N-1))){
-            vector_obstaculos[i] = 1;
-            contador_obstaculos++; 
-           }  
+       temp1 = rand()%N;
+       temp2 = rand()%N;
+
+       if(tablero[temp1][temp2] == 0){
+           matriz_visitados[temp1][temp2] = 1;
+           tablero[temp1][temp2] = 1;
+           contador_obstaculos++;
        }
-       else{
-           vector_obstaculos[i] = 0;
+       // Nos aseguramos que en la meta no haya obstaculos si en la constante ASEGURAR_META esta a 1
+       if(ASEGURAR_META){
+           tablero[0][0] = 0;
+           matriz_visitados[0][0] = 0;
+           tablero[N-1][N-1] = 0;
+            matriz_visitados[N-1][N-1] = 0;  
        }
+
    }
 
 }
@@ -152,11 +159,11 @@ int comprobar_parametros(int N, int x1, int y1){
 //      tablero
 //----------------------------------------------------------------------------------------------------------------------
 
-void imprime_tablero(int N, int *tablero){
+void imprime_tablero(int N, int **tablero){
     int i, j;
     for(i=0; i<N; i++){
         for(j=0; j<N; j++){
-            printf(" %d ", tablero[i*N+j]);
+            printf(" %d ", tablero[i][j]);
         }
         printf("\n");
     }
@@ -293,12 +300,20 @@ int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int *cola_x,
         int y_temp = y + vector_movimientos[i][1];
         // Si es posible moverse a esa posicion
         if(es_posible(N, x_temp, y_temp, tablero)){     // Si es posible moverse a esa posicion
-            if(matriz_visitados[x_temp][y_temp] != 1){  // Si no hemos visitado esa posicion
-                posible_mover++;
-                //int insertar_cola(int x, int y, int *cola_x, int *cola_y, int N){
-                insertar_cola(x_temp, y_temp, cola_x, cola_y, N);
-                //Lo marcamos como visitado
-                matriz_visitados[x_temp][y_temp] = 1;
+            if(matriz_visitados[x_temp][y_temp] != 1 ){  // Si no hemos visitado esa posicion
+                //fprintf(stdout,"===\n");
+                //imprime_tablero(N, tablero);
+                //fprintf(stdout,"===\n");
+                //fprintf(stdout,"%d -> %d,%d\n", tablero[x_temp][y_temp], x_temp, y_temp);
+                //fprintf(stdout,"===\n");
+                if(tablero[x_temp][y_temp] != 1){
+                    posible_mover++;
+                    //int insertar_cola(int x, int y, int *cola_x, int *cola_y, int N){
+                    insertar_cola(x_temp, y_temp, cola_x, cola_y, N);
+                    //Lo marcamos como visitado
+                    matriz_visitados[x_temp][y_temp] = 1;
+                }
+                
             }
         }
     }
@@ -665,7 +680,7 @@ int main(int argc, char *argv[]){
     // Se genera el array de obstaculos con calloc
     vector_obstaculos = (int *)calloc(N*N, sizeof(int));
     // Se genera el array de obstaculos aleatoriamente
-    genera_obstaculos(N*N, vector_obstaculos);
+    
     // Se imprime el array de obstaculos
 
     if(DEBUG){
@@ -688,28 +703,34 @@ int main(int argc, char *argv[]){
     //Imprimimos la matriz del tablero
     if(DEBUG){
         fprintf(stdout, "Tablero sin obstaculos:\n");
-        imprime_tablero(N, matriz_tablero[0]);
+        imprime_tablero(N, matriz_tablero);
     }
 
     
 
     //Pasamos los obstaculos (cuando haya un 1 en el array de obstaculos) a la matriz del tablero
+    /*
     for(i=0; i<N*N; i++){
         if(vector_obstaculos[i] == 1){
             matriz_tablero[i/N][i%N] = 1;
         }
     }
-
-    //Imprimimos la matriz del tablero
-    fprintf(stdout, "Tablero con obstaculos:\n");
-    imprime_tablero(N, matriz_tablero[0]);
-
+    */
 
     // Se reserva memoria para la matriz de visitados
     matriz_visitados = (int **)calloc(N, sizeof(int *));
     for(i = 0; i < N; i++){
         matriz_visitados[i] = (int *)calloc(N, sizeof(int));
     }
+
+    genera_obstaculos(N, matriz_tablero, matriz_visitados);
+
+    //Imprimimos la matriz del tablero
+    fprintf(stdout, "Tablero con obstaculos:\n");
+    imprime_tablero(N, matriz_tablero);
+
+
+    
 
     // Se reserva memoria para la matriz de padres
     matriz_padres = (int ***)calloc(N, sizeof(int **));
