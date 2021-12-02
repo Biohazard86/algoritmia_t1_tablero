@@ -302,13 +302,13 @@ int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int *cola_x,
             }
         }
     }
-    // Si no hay posibles movimientos, devolvemos 1 ya que hay un error.
+    // Si no hay posibles movimientos, devolvemos 0 ya que hay un error.
     if(posible_mover == 0){
-        return 1;
+        return posible_mover;
     }
     else{
-        // Si hay posibles movimientos, devolvemos 0 indicando que no hay error.
-        return 0;
+        // Si hay posibles movimientos, devolvemos >0 indicando que no hay error.
+        return posible_mover;
     }
 }
 
@@ -578,7 +578,9 @@ int main(int argc, char *argv[]){
     int *vector_obstaculos;     // Vector que contiene los obstaculos del tablero
     int **matriz_tablero;       //Matriz que vamos a usar en funcion de las posiciones que nos pase el usuario. Es un puntero a punteros de enteros
     int *posibles_destinosx;   //En esta matriz vamos a almacenar los posibles destinos
-    int *posibles_destinosy;   //En esta matriz vamos a almacenar los posibles destinos  
+    int *posibles_destinosy;   //En esta matriz vamos a almacenar los posibles destinos 
+    int *posibles_destinos_padres_x; //En esta matriz vamos a almacenar los posibles destinos padres
+    int *posibles_destinos_padres_y; //En esta matriz vamos a almacenar los posibles destinos padres 
     int ***matriz_padres;       //Matriz de NxNn3 En ests matriz vamos a almacenar la posicion respecto el inicio m[][][0], la coordenada x m[][][1]y la coordenada y m[][][2]
     int i, j, k;                      // Contador
     int iteraciones;            // Contador de iteraciones
@@ -589,7 +591,9 @@ int main(int argc, char *argv[]){
     int flag_continuar = TRUE;  // Bandera para saber si seguimos o no
     int x_temporal, y_temporal; // Posiciones temporales para almacenar las posiciones de los destinos
     int **ruta_seguida;         // Vector que almacena la ruta seguida para mostrarla al finalizar la ejecucion
-
+    int devueltos_consultados;  // Contador de los devueltos consultados por la funcion que calcula a cuales se puede ir
+    int *nada;
+    int while_contador = 0;
 
     // Presentacion del programa
     presentacion();
@@ -668,6 +672,8 @@ int main(int argc, char *argv[]){
         }
     }
 
+    //
+
     //recorremos toda la matriz de padres para ponerle los valores a 0
     for(i=0; i<N; i++){
         for(j=0; j<N; j++){
@@ -682,11 +688,15 @@ int main(int argc, char *argv[]){
     // De esta forma podriamos guardar toda la matriz sin procesar si hiciese falta.
     posibles_destinosx = (int *)calloc(N*N, sizeof(int));
     posibles_destinosy = (int *)calloc(N*N, sizeof(int));
+    posibles_destinos_padres_x = (int *)calloc(N*N, sizeof(int));
+    posibles_destinos_padres_y = (int *)calloc(N*N, sizeof(int));
 
     // ponemos en estos dos vectores valores negativos para indicar que estan libres.
     for(j=0; j<N*N; j++){
         posibles_destinosx[j] = -1;
         posibles_destinosy[j] = -1;
+        posibles_destinos_padres_x[j] = -1;
+        posibles_destinos_padres_y[j] = -1;
     }
     
     
@@ -718,6 +728,7 @@ int main(int argc, char *argv[]){
     // hacemos esto hasta que la bandera este a FALSE
     while(flag_continuar){
 
+
         fprintf(stdout, "Iteracion %d\n", iteraciones);
 
         // Extraemos el primer valor de la cola y los guardamos en vars temporales
@@ -736,12 +747,20 @@ int main(int argc, char *argv[]){
 
         // Calculamos a las posiciones que se pueden ir desde la casilla que acabamos de extraer
         // int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int *cola_x, int *cola_y, int **matriz_visitados){
-        comprobar_posibles_destinos(N, matriz_tablero, x_temporal, y_temporal, posibles_destinosx, posibles_destinosy, matriz_visitados);
+        devueltos_consultados=comprobar_posibles_destinos(N, matriz_tablero, x_temporal, y_temporal, posibles_destinosx, posibles_destinosy, matriz_visitados);
 
+        for(int g=0; g<devueltos_consultados; g++){
+            //int insertar_cola(int x, int y, int *cola_x, int *cola_y, int N){
+            insertar_cola(x_temporal, y_temporal, posibles_destinos_padres_x, posibles_destinos_padres_y, N);
+        }
+
+        if(DEBUG){
+            fprintf(stdout, "Se han devuelto %d posibles destinos.\n", devueltos_consultados);
+        }
         
         //Insertamos en la matriz de padres los valores de la cola
         //int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int iteraccion, int *cola_x, int *cola_y,int N){
-        insertar_matriz_padres(x_temporal, y_temporal, matriz_padres, iteraciones, posibles_destinosx, posibles_destinosy, N);
+        insertar_matriz_padres(posibles_destinos_padres_x[while_contador], posibles_destinos_padres_y[while_contador], matriz_padres, iteraciones, posibles_destinosx, posibles_destinosy, N);
 
         //Comprobamos si es la meta el punto en el que estamos
         if(comprueba_meta(x_temporal, y_temporal, N-1, N-1)){
@@ -757,15 +776,26 @@ int main(int argc, char *argv[]){
         
 
         if(DEBUG){
-            fprintf(stdout, "El valor de flag_continuar es %d .\n", flag_continuar);
-            fprintf(stdout, "El buffer X:\n");
-            for(int k=0; k<N*N; k++){
-                fprintf(stdout, "%d ", posibles_destinosx[k]);
+            fprintf(stdout, "Matriz visitados:\n");
+            for(i=0; i<N; i++){
+                for(j=0; j<N; j++){
+                    fprintf(stdout, "%d ", matriz_visitados[i][j]);
+                }
+                fprintf(stdout, "\n");
             }
-            fprintf(stdout, "\n");
-            fprintf(stdout, "El buffer Y:\n");
+
+            fprintf(stdout, "Matriz padres\n");
+            fprintf(stdout, "-------------------------\n");
+            for(int q=0; q<N; q++){
+                for(int w=0; w<N; w++){
+                    fprintf(stdout, "%d,%d\t", matriz_padres[q][w][1], matriz_padres[q][w][2]);
+                }
+                fprintf(stdout, "\n");
+            }
+            fprintf(stdout, "El valor de flag_continuar es %d .\n", flag_continuar);
+            fprintf(stdout, "El buffer\n");
             for(int k=0; k<N*N; k++){
-                fprintf(stdout, "%d ", posibles_destinosy[k]);
+                fprintf(stdout, "%d,%d\t", posibles_destinosx[k], posibles_destinosy[k]);
             }
             fprintf(stdout, "\n");
             
@@ -782,6 +812,7 @@ int main(int argc, char *argv[]){
             printf("Pulsa algo para seguir\n");
             int c = getchar();
         }
+        while_contador++;
     }
 
     // int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_destino, int iteraccion)
@@ -800,18 +831,13 @@ int main(int argc, char *argv[]){
 
     for(int q=0; q<N; q++){
         for(int w=0; w<N; w++){
-            fprintf(stdout, "%d ", matriz_padres[q][w][1]);
+            fprintf(stdout, "%d,%d\t", matriz_padres[q][w][1], matriz_padres[q][w][2]);
+
         }
         fprintf(stdout, "\n");
     }
     fprintf(stdout, "-------------------------\n");
-    for(int q=0; q<N; q++){
-        for(int w=0; w<N; w++){
-            fprintf(stdout, "%d ", matriz_padres[q][w][2]);
-        }
-        fprintf(stdout, "\n");
-    }
-    fprintf(stdout, "-------------------------\n");
+    
 
     fprintf(stdout, "Matriz visitados\n");
     fprintf(stdout, "-------------------------\n");
