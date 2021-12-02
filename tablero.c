@@ -658,6 +658,15 @@ int main(int argc, char *argv[]){
         }
     }
 
+    //recorremos toda la matriz de padres para ponerle los valores a 0
+    for(i=0; i<N; i++){
+        for(j=0; j<N; j++){
+            for(k=0; k<3; k++){
+                matriz_padres[i][j][k] = -1;
+            }
+        }
+    } 
+
     //Reservamos memoria para la cola de posibles destinos
     // Vamos a reservar n*n posiciones para los posibles destinos
     // De esta forma podriamos guardar toda la matriz sin procesar si hiciese falta.
@@ -769,7 +778,7 @@ int main(int argc, char *argv[]){
     // Reconstruimos la ruta
 
     // Comprobamos si hay padre de la casilla de destino
-
+    fprintf(stdout, "Matriz padres\n");
     fprintf(stdout, "-------------------------\n");
     for(int q=0; q<N; q++){
         for(int w=0; w<N; w++){
@@ -793,8 +802,18 @@ int main(int argc, char *argv[]){
         fprintf(stdout, "\n");
     }
     fprintf(stdout, "-------------------------\n");
+
+    fprintf(stdout, "Matriz visitados\n");
+    fprintf(stdout, "-------------------------\n");
+    for(int q=0; q<N; q++){
+        for(int w=0; w<N; w++){
+            fprintf(stdout, "%d\t", matriz_visitados[q][w]);
+        }
+        fprintf(stdout, "\n");
+    }
+    fprintf(stdout, "-------------------------\n");
     
-    if(matriz_padres[N-1][N-1][0] > 0){
+    if(matriz_padres[N-1][N-1][0] < 0){
         fprintf(stdout, "No hay camino posible\n");
         return 0;
     } 
