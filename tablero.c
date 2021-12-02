@@ -457,8 +457,8 @@ int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int i
                 }
                 // Si no hay nada, lo insertamos
                 matriz_padres[x_temp][y_temp][0]=iteraccion;          // Los pasos que hemos dado para llegar ahi
-                matriz_padres[x_temp][y_temp][1]=x_padre;             // La coordenada x del punto padre (el punto que hemos llegado de)
-                matriz_padres[x_temp][y_temp][2]=y_padre;             // La coordenada y del punto padre (el punto que hemos llegado de)
+                matriz_padres[x_temp][y_temp][1]=y_padre;             // La coordenada x del punto padre (el punto que hemos llegado de)
+                matriz_padres[x_temp][y_temp][2]=x_padre;             // La coordenada y del punto padre (el punto que hemos llegado de)
                 return 1;                                               // Significa que todo ha ido bien
             }// FIN else
         }// FIN IF
@@ -480,43 +480,42 @@ int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int i
 //      matriz_padres: matriz de los padres donde esta la informacion
 //----------------------------------------------------------------------------------------------------------------------
 
-int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_destino, int iteraccion){
+int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_destino, int N){
 
-    int x_ini,y_ini, x_fin, y_fin, iteraccion_ruta = 0, i;
+    int x=x_destino, y=y_destino, flag=1;
 
-    //Nos situamos en la posicion de destino x,y
-    x_fin=x_destino;
-    y_fin=y_destino;
+    fprintf(stdout,"\n\nReconstruyendo camino...\n");
 
-    fprintf(stdout, "La ruta desde el fin hasta el inicio es:\n");
-
-
-    while ((x_ini != 0) || (y_ini != 0)){
+    //Imprimo matriz_padres
+    if(DEBUG){
+        printf("\n\nMatriz de padres:\n");
+        for(int i=0;i<N;++i){
+            for(int j=0;j<N;++j){
+                fprintf(stdout, "%d,%d    ", matriz_padres[i][j][1], matriz_padres[i][j][2]);
+            }
+            printf("\n");
+        }
+    }
+    printf("\n");
+    
+   
+    while(flag){
+        fprintf(stdout,"%d,%d <-",x, y);
+        fprintf(stdout,"\nMP: %d,%d\n", matriz_padres[x][y][1], matriz_padres[x][y][2]);
+        x = matriz_padres[x][y][1];
+        y = matriz_padres[x][y][2];
+        fprintf(stdout,"Accediendo a %d,%d\n",x, y);
         
-        // Nos movemos al punto padre (cogemos los datos desde donde se llego a esa casilla)
-        x_ini=matriz_padres[x_fin][y_fin][1];
-        y_ini=matriz_padres[x_fin][y_fin][2];
-
-        //Pedimos memoria con calloc para el vector ruta
-        ruta = (int **)calloc(1, sizeof(int *));
-        for(int i = 0; i < iteraccion_ruta; i++){
-            ruta[i] = (int *)calloc(1, sizeof(int));
+        
+        if((x<0) && (y<0)){
+            flag=0;
         }
 
-
-
-        // Insertamos el punto en la ruta
-        ruta[0][0]=x_ini;
-        ruta[0][1]=y_ini;
-        iteraccion_ruta++;  // Incrementamos para comprobar que nos sale los mismo que con el que se nos pasa mediante parametro
-
-        // Y ahora ponemos el inicio como final
-        x_fin=x_ini;
-        y_fin=y_ini;
-
-
-        // Imprimimos la ruta
-        fprintf(stdout, "%d, %d\n", x_ini, y_ini);
+        if(DEBUG){
+            //Presionamos una tecla para continuar
+            fprintf(stdout,"Presione una tecla para continuar...\n");
+            getchar();
+        }
     }
     
     
@@ -776,7 +775,7 @@ int main(int argc, char *argv[]){
         
 
         if(DEBUG){
-            fprintf(stdout, "Matriz visitados:\n");
+            fprintf(stdout, "\n\nMatriz visitados:\n");
             for(i=0; i<N; i++){
                 for(j=0; j<N; j++){
                     fprintf(stdout, "%d ", matriz_visitados[i][j]);
@@ -792,6 +791,7 @@ int main(int argc, char *argv[]){
                 }
                 fprintf(stdout, "\n");
             }
+            fprintf(stdout, "-------------------------\n");
             fprintf(stdout, "El valor de flag_continuar es %d .\n", flag_continuar);
             fprintf(stdout, "El buffer\n");
             for(int k=0; k<N*N; k++){
@@ -827,7 +827,8 @@ int main(int argc, char *argv[]){
         }
         fprintf(stdout, "\n");
     }
-    fprintf(stdout, "-------------------------\n");
+    fprintf(stdout, "1\t2\t3\t4\t5\t6\t7\t8\t9\n");
+    fprintf(stdout, "-------------------------------------------------------------------\n");
 
     for(int q=0; q<N; q++){
         for(int w=0; w<N; w++){
@@ -855,7 +856,7 @@ int main(int argc, char *argv[]){
     } 
     else{
         // Si hay padre, reconstruimos la ruta
-        reconstruir_camino(matriz_padres, ruta_seguida, x1, y1, iteraciones);
+        reconstruir_camino(matriz_padres, ruta_seguida, N-1, N-1, N);
     }
     
 
