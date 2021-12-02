@@ -557,7 +557,8 @@ int mostrar_ruta(int ***matriz_padres, int x, int y, int N, int contador_saltos)
     }
     else{
         fprintf(stdout,"%d,%d <- ",x, y);
-        mostrar_ruta(matriz_padres, matriz_padres[x][y][2], matriz_padres[x][y][1], N);
+        contador_saltos++;
+        mostrar_ruta(matriz_padres, matriz_padres[x][y][2], matriz_padres[x][y][1], N, contador_saltos);
     }
 }
 
