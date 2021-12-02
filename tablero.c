@@ -532,7 +532,7 @@ int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_de
 //      matriz_padres: matriz de los padres donde esta la informacion
 //----------------------------------------------------------------------------------------------------------------------
 
-int mostrar_ruta(int ***matriz_padres, int x, int y, int N){
+int mostrar_ruta(int ***matriz_padres, int x, int y, int N, int contador_saltos){
 
     int i,j;
     
@@ -551,6 +551,8 @@ int mostrar_ruta(int ***matriz_padres, int x, int y, int N){
     
     if((matriz_padres[x][y][1] < 0) && (matriz_padres[x][y][2] < 0)){
         fprintf(stdout,"%d,%d",x, y);
+        fprintf(stdout,"\n-------------------------\n");
+        fprintf(stdout,"El numero de saltos ha sido: %d\n", contador_saltos);
         return 0;
     }
     else{
@@ -912,7 +914,7 @@ int main(int argc, char *argv[]){
         fprintf(stdout, "La ruta desde N,N hasta 0,0 es:\n");
         
         //int mostrar_ruta(int ***matriz_padres, int x, int y){
-        mostrar_ruta(matriz_padres, N-1, N-1, N);
+        mostrar_ruta(matriz_padres, N-1, N-1, N, 0);
         printf("\n");
     }
     
