@@ -42,10 +42,10 @@ ALGORITMO
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define NO_OBSTACULO 10 // Probabilidad de que una casilla no sea obstaculo (0-10)
+#define NO_OBSTACULO 6 // Probabilidad de que una casilla no sea obstaculo (0-10)
 #define FALSE 0
 #define TRUE 1
-#define DEBUG 1         // 1 = activa, 0 = desactiva
+#define DEBUG 0         // 1 = activa, 0 = desactiva
 
 
 
@@ -522,6 +522,43 @@ int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_de
 }
 
 
+//----------------------------------------------------------------------------------------------------------------------
+// Funcion reconstruir_camino
+//----------------------------------------------------------------------------------------------------------------------
+// Funcion que se llama una vez acabada la ejecucion y reconstruye el camino desde la meta hasta el punto inicial
+// Usa la matriz de padres para reconstruir el camino
+//----------------------------------------------------------------------------------------------------------------------
+// PARAMETROS
+//      matriz_padres: matriz de los padres donde esta la informacion
+//----------------------------------------------------------------------------------------------------------------------
+
+int mostrar_ruta(int ***matriz_padres, int x, int y, int N){
+
+    int i,j;
+    
+    /*
+    if(DEBUG){
+        fprintf(stdout,"\n\nLa matriz:\n");
+        for(i=0;i<N;++i){
+            for(j=0;j<N;++j){
+                printf("%d,%d    ", matriz_padres[i][j][1], matriz_padres[i][j][2]);
+            }
+            printf("\n");
+        }
+    }
+    printf("----------------\n");
+    */
+    
+    if((matriz_padres[x][y][1] < 0) && (matriz_padres[x][y][2] < 0)){
+        fprintf(stdout,"%d,%d",x, y);
+        return 0;
+    }
+    else{
+        fprintf(stdout,"%d,%d <- ",x, y);
+        mostrar_ruta(matriz_padres, matriz_padres[x][y][2], matriz_padres[x][y][1], N);
+    }
+}
+
 
 
 
@@ -620,15 +657,20 @@ int main(int argc, char *argv[]){
     }
     
     fprintf(stdout, "Datos de la ejecucion:\n");
-    fprintf(stdout, "-> Tablero de %dx%d\n", N, N);
-    fprintf(stdout, "-> Posicion final del caballo: (%d,%d)\n", x1, y1);
+    fprintf(stdout, "-> Tablero de %dx%d posiciones. (De 0 a %d)\n", N, N, N-1);
+    fprintf(stdout, "-> Posicion final del caballo: (%d,%d)\n", x1-1, y1-1);
     // Se genera el array de obstaculos con calloc
     vector_obstaculos = (int *)calloc(N*N, sizeof(int));
     // Se genera el array de obstaculos aleatoriamente
     genera_obstaculos(N*N, vector_obstaculos);
     // Se imprime el array de obstaculos
-    fprintf(stdout, "Obstaculos:\n");
-    imprime_obstaculos(N*N, vector_obstaculos);
+
+    if(DEBUG){
+        fprintf(stdout, "Obstaculos:\n");
+        imprime_obstaculos(N*N, vector_obstaculos);
+    }
+        
+    
 
     // Se reserva memoria para la matriz del tablero
     //solicitamos la memoria con calloc para la matriz en funcion de los argumentos que nos pase el usuario
@@ -641,8 +683,12 @@ int main(int argc, char *argv[]){
     limpia_tablero(N, *matriz_tablero);
     
     //Imprimimos la matriz del tablero
-    fprintf(stdout, "Tablero sin obstaculos:\n");
-    imprime_tablero(N, matriz_tablero[0]);
+    if(DEBUG){
+        fprintf(stdout, "Tablero sin obstaculos:\n");
+        imprime_tablero(N, matriz_tablero[0]);
+    }
+
+    
 
     //Pasamos los obstaculos (cuando haya un 1 en el array de obstaculos) a la matriz del tablero
     for(i=0; i<N*N; i++){
@@ -704,7 +750,7 @@ int main(int argc, char *argv[]){
     //COMIENZO DEL ALGORITMO
     //----------------------------------------------------------------------------------------------------------------------
 
-    fprintf(stdout, "Comienza el algoritmo\n");
+    fprintf(stdout, "\nComienza el algoritmo...\n");
 
     // Ponemos la casilla de salida como visitada
     matriz_visitados[x0][y0] = 1;
@@ -728,13 +774,14 @@ int main(int argc, char *argv[]){
     while(flag_continuar){
 
 
-        fprintf(stdout, "Iteracion %d\n", iteraciones);
+        
 
         // Extraemos el primer valor de la cola y los guardamos en vars temporales
         x_temporal = posibles_destinosx[0];
         y_temporal = posibles_destinosy[0];
 
         if(DEBUG){
+            fprintf(stdout, "Iteracion %d\n", iteraciones);
             fprintf(stdout, "Se ha extraido la casilla %d,%d\n", x_temporal, y_temporal);
         }
 
@@ -764,7 +811,7 @@ int main(int argc, char *argv[]){
         //Comprobamos si es la meta el punto en el que estamos
         if(comprueba_meta(x_temporal, y_temporal, N-1, N-1)){
             // Ponemos la flag a cero
-            fprintf(stdout, "Se ha encontrado la meta.\n");
+            fprintf(stdout, "\n-> Se ha encontrado la meta. <-\n");
             flag_continuar = 0;
         }
         // comprobamos el tamanio del vector de ocupados de la cola
@@ -818,37 +865,42 @@ int main(int argc, char *argv[]){
     // int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_destino, int iteraccion)
     // Reconstruimos la ruta
 
-    // Comprobamos si hay padre de la casilla de destino
-    fprintf(stdout, "Matriz padres\n");
-    fprintf(stdout, "-------------------------\n");
-    for(int q=0; q<N; q++){
-        for(int w=0; w<N; w++){
-            fprintf(stdout, "%d\t", matriz_padres[q][w][0]);
-        }
-        fprintf(stdout, "\n");
-    }
-    fprintf(stdout, "1\t2\t3\t4\t5\t6\t7\t8\t9\n");
-    fprintf(stdout, "-------------------------------------------------------------------\n");
+    if(DEBUG){
+        // Comprobamos si hay padre de la casilla de destino
 
-    for(int q=0; q<N; q++){
-        for(int w=0; w<N; w++){
-            fprintf(stdout, "%d,%d\t", matriz_padres[q][w][1], matriz_padres[q][w][2]);
-
+        fprintf(stdout, "Matriz padres\n");
+        fprintf(stdout, "-------------------------\n");
+        for(int q=0; q<N; q++){
+            for(int w=0; w<N; w++){
+                fprintf(stdout, "%d\t", matriz_padres[q][w][0]);
+            }
+            fprintf(stdout, "\n");
         }
-        fprintf(stdout, "\n");
+        fprintf(stdout, "1\t2\t3\t4\t5\t6\t7\t8\t9\n");
+        fprintf(stdout, "-------------------------------------------------------------------\n");
+
+        for(int q=0; q<N; q++){
+            for(int w=0; w<N; w++){
+                fprintf(stdout, "%d,%d\t", matriz_padres[q][w][1], matriz_padres[q][w][2]);
+
+            }
+            fprintf(stdout, "\n");
+        }
+        fprintf(stdout, "-------------------------\n");
+        
+
+        fprintf(stdout, "Matriz visitados\n");
+        fprintf(stdout, "-------------------------\n");
+        for(int q=0; q<N; q++){
+            for(int w=0; w<N; w++){
+                fprintf(stdout, "%d\t", matriz_visitados[q][w]);
+            }
+            fprintf(stdout, "\n");
+        }
     }
-    fprintf(stdout, "-------------------------\n");
+
     
-
-    fprintf(stdout, "Matriz visitados\n");
-    fprintf(stdout, "-------------------------\n");
-    for(int q=0; q<N; q++){
-        for(int w=0; w<N; w++){
-            fprintf(stdout, "%d\t", matriz_visitados[q][w]);
-        }
-        fprintf(stdout, "\n");
-    }
-    fprintf(stdout, "-------------------------\n");
+    fprintf(stdout, "\n-------------------------\n");
     
     if(matriz_padres[N-1][N-1][0] < 0){
         fprintf(stdout, "No hay camino posible\n");
@@ -856,7 +908,12 @@ int main(int argc, char *argv[]){
     } 
     else{
         // Si hay padre, reconstruimos la ruta
-        reconstruir_camino(matriz_padres, ruta_seguida, N-1, N-1, N);
+        //reconstruir_camino(matriz_padres, ruta_seguida, N-1, N-1, N);
+        fprintf(stdout, "La ruta desde N,N hasta 0,0 es:\n");
+        
+        //int mostrar_ruta(int ***matriz_padres, int x, int y){
+        mostrar_ruta(matriz_padres, N-1, N-1, N);
+        printf("\n");
     }
     
 
