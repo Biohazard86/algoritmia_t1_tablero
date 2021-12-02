@@ -42,7 +42,7 @@ ALGORITMO
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define NO_OBSTACULO 6 // Probabilidad de que una casilla no sea obstaculo (0-10)
+#define NO_OBSTACULO 10 // Probabilidad de que una casilla no sea obstaculo (0-10)
 #define FALSE 0
 #define TRUE 1
 #define DEBUG 1         // 1 = activa, 0 = desactiva
@@ -82,8 +82,10 @@ void genera_obstaculos(int N, int *vector_obstaculos){
    for(i=0; i<N; i++){
        temp = rand()%11;
        if((temp > NO_OBSTACULO) && (contador_obstaculos < N)){
-           vector_obstaculos[i] = 1;
-            contador_obstaculos++;   
+           if((i != 0) && (i != (N-1))){
+            vector_obstaculos[i] = 1;
+            contador_obstaculos++; 
+           }  
        }
        else{
            vector_obstaculos[i] = 0;
@@ -295,6 +297,8 @@ int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int *cola_x,
                 posible_mover++;
                 //int insertar_cola(int x, int y, int *cola_x, int *cola_y, int N){
                 insertar_cola(x_temp, y_temp, cola_x, cola_y, N);
+                //Lo marcamos como visitado
+                matriz_visitados[x_temp][y_temp] = 1;
             }
         }
     }
@@ -533,14 +537,16 @@ int contar_buffer(int *cola_x, int *cola_y, int N){
         if((cola_x[i] >= 0) && (cola_y[i] >= 0))
         {
             numero_elementos++;
-            if(DEBUG){
-                printf(" ->Incremento contador buffer\n");
-            }
+            //if(DEBUG){
+            //    printf(" ->Incremento contador buffer\n");
+            //}
         }
     }
 
     return numero_elementos;
 }
+
+
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -678,10 +684,17 @@ int main(int argc, char *argv[]){
     // introducimos la casilla de inicio en la cola
     //int insertar_cola(int x, int y, int *cola_x, int *cola_y, int N){
     insertar_cola(x0, y0, posibles_destinosx, posibles_destinosy, N);
+    // Y lo marcamos como que ya ha sido visitado
+    matriz_visitados[x0][y0] = 1;
+
     iteraciones++;
 
 
-    fprintf(stdout, "Se ha cargado la posicion inicial y se procede al bucle.\n");
+    if(DEBUG){
+        fprintf(stdout, "El valor de flag_continuar es %d .\n", flag_continuar);
+        fprintf(stdout, "Se ha cargado la posicion inicial y se procede al bucle.\n");
+    }
+    
 
     // hacemos esto hasta que la bandera este a FALSE
     while(flag_continuar){
@@ -695,6 +708,8 @@ int main(int argc, char *argv[]){
         if(DEBUG){
             fprintf(stdout, "Se ha extraido la casilla %d,%d\n", x_temporal, y_temporal);
         }
+
+        
         
 
         //int extraer_cola( int *cola_x, int *cola_y, int *x,int *y, int N){
@@ -710,15 +725,13 @@ int main(int argc, char *argv[]){
         insertar_matriz_padres(x_temporal, y_temporal, matriz_padres, iteraciones, posibles_destinosx, posibles_destinosy, N);
 
         //Comprobamos si es la meta el punto en el que estamos
-        if(comprueba_meta(x_temporal, y_temporal, N, N)){
+        if(comprueba_meta(x_temporal, y_temporal, N-1, N-1)){
             // Ponemos la flag a cero
+            fprintf(stdout, "Se ha encontrado la meta.\n");
             flag_continuar = 0;
         }
         // comprobamos el tamanio del vector de ocupados de la cola
         // ya que si esta a cero seria una condicion para parar
-        if(tam_cola_ocupado == 0){
-            flag_continuar = 0;
-        }
         if(contar_buffer(posibles_destinosx, posibles_destinosy, N) == 0){
             flag_continuar = 0;
         }
@@ -726,18 +739,70 @@ int main(int argc, char *argv[]){
 
         if(DEBUG){
             fprintf(stdout, "El valor de flag_continuar es %d .\n", flag_continuar);
+            fprintf(stdout, "El buffer X:\n");
+            for(int k=0; k<N*N; k++){
+                fprintf(stdout, "%d ", posibles_destinosx[k]);
+            }
+            fprintf(stdout, "\n");
+            fprintf(stdout, "El buffer Y:\n");
+            for(int k=0; k<N*N; k++){
+                fprintf(stdout, "%d ", posibles_destinosy[k]);
+            }
+            fprintf(stdout, "\n");
+            
         }
 
 
         // Incrementamos la iteracion
         iteraciones++;      // Las iteracciones que llevamos/pasos hasta este punto
+
+        
+
+
+        if(DEBUG){
+            printf("Pulsa algo para seguir\n");
+            int c = getchar();
+        }
     }
 
     // int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_destino, int iteraccion)
     // Reconstruimos la ruta
-    reconstruir_camino(matriz_padres, ruta_seguida, x1, y1, iteraciones);
 
+    // Comprobamos si hay padre de la casilla de destino
 
+    fprintf(stdout, "-------------------------\n");
+    for(int q=0; q<N; q++){
+        for(int w=0; w<N; w++){
+            fprintf(stdout, "%d\t", matriz_padres[q][w][0]);
+        }
+        fprintf(stdout, "\n");
+    }
+    fprintf(stdout, "-------------------------\n");
+
+    for(int q=0; q<N; q++){
+        for(int w=0; w<N; w++){
+            fprintf(stdout, "%d ", matriz_padres[q][w][1]);
+        }
+        fprintf(stdout, "\n");
+    }
+    fprintf(stdout, "-------------------------\n");
+    for(int q=0; q<N; q++){
+        for(int w=0; w<N; w++){
+            fprintf(stdout, "%d ", matriz_padres[q][w][2]);
+        }
+        fprintf(stdout, "\n");
+    }
+    fprintf(stdout, "-------------------------\n");
+    
+    if(matriz_padres[N-1][N-1][0] > 0){
+        fprintf(stdout, "No hay camino posible\n");
+        return 0;
+    } 
+    else{
+        // Si hay padre, reconstruimos la ruta
+        reconstruir_camino(matriz_padres, ruta_seguida, x1, y1, iteraciones);
+    }
+    
 
     // Liberamos la memoria solicitada para el tablero.
     free(matriz_tablero);
