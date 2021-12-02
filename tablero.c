@@ -436,15 +436,25 @@ int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int i
         // Cogemos los elementos de la cola que sean positivos
         if((cola_x[i] >= 0) && (cola_y[i] >= 0))
         {
+            if(DEBUG){
+                printf("Se procede a insertar en la matriz de padres.\n");
+            }
             x_temp = cola_x[i];
             y_temp = cola_y[i];
             // Insertamos los valores en la matriz de padres
             // Realizamos una comprobacion de errores que no es necesaria pero nunca esta de mas
             // Si en el punto hay algo diferente a un 0 no debemos sobreescribirlo
-            if(matriz_padres[x_temp][y_temp][0] != 0){
+            if(matriz_padres[x_temp][y_temp][0] > 0){
+                
+                if(DEBUG){
+                    printf("Error, algo ha salido mal en la inserccion de matriz de padres\n");
+                }
                 return 0; // Error, algo ha salido mal y lo indicamos
             }
             else{
+                if(DEBUG){
+                    printf("Exito al insertar en la matriz de padres.\n");
+                }
                 // Si no hay nada, lo insertamos
                 matriz_padres[x_temp][y_temp][0]=iteraccion;          // Los pasos que hemos dado para llegar ahi
                 matriz_padres[x_temp][y_temp][1]=x_padre;             // La coordenada x del punto padre (el punto que hemos llegado de)
