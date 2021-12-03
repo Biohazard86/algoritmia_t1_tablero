@@ -59,7 +59,7 @@ ALGORITMO
 //----------------------------------------------------------------------------------------------------------------------
 void presentacion(){
     fprintf(stdout, "------------------------------------------------------------\n");
-    fprintf(stdout, "--                TRABAJO 1 / CURSO 2021/2022             --\n");
+    fprintf(stdout, "--                TRABAJO 1 - CURSO 2021/2022             --\n");
     fprintf(stdout, "--  Recorrido de un caballo en un tablero con obstaculos  --\n");
     fprintf(stdout, "------------------------------------------------------------\n");
     fprintf(stdout, "--           David Barrios   &   Sergio Barrios           --\n");
@@ -74,7 +74,8 @@ void presentacion(){
 //----------------------------------------------------------------------------------------------------------------------
 // PARAMETROS
 //      N: tamaño del tablero
-//      vector_obstaculos: array de obstaculos
+//      tablero: array de obstaculos
+//      matriz_visitados: array de visitados
 //----------------------------------------------------------------------------------------------------------------------
 
 void genera_obstaculos(int N, int **tablero,int **matriz_visitados){
@@ -250,8 +251,9 @@ int es_posible(int N, int x, int y, int **tablero){
 // PARAMETROS
 //      x: coordenada x del punto inicio
 //      y: coordenada y del punto inicio
-//      x_meta: coordenada x del punto meta
-//      y_meta: coordenada y del punto meta
+//      cola_x: cola de coordenadas x
+//      cola_y: cola de coordenadas y
+//      N: tamaño del tablero
 //----------------------------------------------------------------------------------------------------------------------
 
 int insertar_cola(int x, int y, int *cola_x, int *cola_y, int N){
@@ -284,7 +286,8 @@ int insertar_cola(int x, int y, int *cola_x, int *cola_y, int N){
 //      tablero: matriz del tablero
 //      x: coordenada x del punto de inicio
 //      y: coordenada y del punto de inicio
-//      cola: cola de puntos a consultar
+//      colax: cola de puntos a consultar
+//      colay: cola de puntos a consultar
 //      matriz_padres: matriz de padres y visitados
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -353,9 +356,6 @@ int comprueba_visitado(int N, int x, int y, int ***matriz_padres){
 }
 
 
-
-
-
 //----------------------------------------------------------------------------------------------------------------------
 // Funcion extraer_cola
 //----------------------------------------------------------------------------------------------------------------------
@@ -363,7 +363,8 @@ int comprueba_visitado(int N, int x, int y, int ***matriz_padres){
 //----------------------------------------------------------------------------------------------------------------------
 // PARAMETROS
 //      N: tamaño del vector
-//      cola: vector de la cola
+//      colax: vector de la cola
+//      colay: vector de la cola
 //      x: coordenada x del punto
 //      y: coordenada y del punto
 //----------------------------------------------------------------------------------------------------------------------
@@ -424,21 +425,18 @@ int comprueba_meta(int x,int y, int meta_x,int meta_y){
     }
 }
 
-
-
-
-
 //----------------------------------------------------------------------------------------------------------------------
 // Funcion insertar_matriz_padres
 //----------------------------------------------------------------------------------------------------------------------
 // Funcion que recibe dos puntos, el punto padre y el punto actual. Inserta en la matriz estos datos
 //----------------------------------------------------------------------------------------------------------------------
 // PARAMETROS
-//      x: coordenada x del punto actual
-//      y: coordenada y del punto actual
 //      x_padre: coordenada x del punto padre
 //      y_padre: coordenada y del punto padre
 //      matriz_padres: matriz de los padres
+//      iteraccion
+//      x_cola: coordenada x del punto actual
+//      y_cola: coordenada y del punto actual
 //----------------------------------------------------------------------------------------------------------------------
 
 int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int iteraccion, int *cola_x, int *cola_y,int N){
@@ -484,67 +482,18 @@ int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int i
 
 
 
-
 //----------------------------------------------------------------------------------------------------------------------
-// Funcion reconstruir_camino
-//----------------------------------------------------------------------------------------------------------------------
-// Funcion que se llama una vez acabada la ejecucion y reconstruye el camino desde la meta hasta el punto inicial
-// Usa la matriz de padres para reconstruir el camino
-//----------------------------------------------------------------------------------------------------------------------
-// PARAMETROS
-//      matriz_padres: matriz de los padres donde esta la informacion
-//----------------------------------------------------------------------------------------------------------------------
-
-int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_destino, int N){
-
-    int x=x_destino, y=y_destino, flag=1;
-
-    fprintf(stdout,"\n\nReconstruyendo camino...\n");
-
-    //Imprimo matriz_padres
-    if(DEBUG){
-        printf("\n\nMatriz de padres:\n");
-        for(int i=0;i<N;++i){
-            for(int j=0;j<N;++j){
-                fprintf(stdout, "%d,%d    ", matriz_padres[i][j][1], matriz_padres[i][j][2]);
-            }
-            printf("\n");
-        }
-    }
-    printf("\n");
-    
-   
-    while(flag){
-        fprintf(stdout,"%d,%d <-",x, y);
-        fprintf(stdout,"\nMP: %d,%d\n", matriz_padres[x][y][1], matriz_padres[x][y][2]);
-        x = matriz_padres[x][y][1];
-        y = matriz_padres[x][y][2];
-        fprintf(stdout,"Accediendo a %d,%d\n",x, y);
-        
-        
-        if((x<0) && (y<0)){
-            flag=0;
-        }
-
-        if(DEBUG){
-            //Presionamos una tecla para continuar
-            fprintf(stdout,"Presione una tecla para continuar...\n");
-            getchar();
-        }
-    }
-    
-    
-}
-
-
-//----------------------------------------------------------------------------------------------------------------------
-// Funcion reconstruir_camino
+// Funcion mostrar_ruta
 //----------------------------------------------------------------------------------------------------------------------
 // Funcion que se llama una vez acabada la ejecucion y reconstruye el camino desde la meta hasta el punto inicial
 // Usa la matriz de padres para reconstruir el camino
 //----------------------------------------------------------------------------------------------------------------------
 // PARAMETROS
 //      matriz_padres: matriz de los padres donde esta la informacion
+//      x_inicio: coordenada x del punto final
+//      y_inicio: coordenada y del punto final
+//      N: tamaño del tablero
+//      contador_saltos: contador de saltos que se realizan para llegar a la salida
 //----------------------------------------------------------------------------------------------------------------------
 
 int mostrar_ruta(int ***matriz_padres, int x, int y, int N, int contador_saltos){
@@ -797,23 +746,18 @@ int main(int argc, char *argv[]){
     // hacemos esto hasta que la bandera este a FALSE
     while(flag_continuar){
 
-
-        
-
         // Extraemos el primer valor de la cola y los guardamos en vars temporales
         x_temporal = posibles_destinosx[0];
         y_temporal = posibles_destinosy[0];
+
+        //int extraer_cola( int *cola_x, int *cola_y, int *x,int *y, int N){
+        extraer_cola(posibles_destinosx, posibles_destinosy, &x_temporal, &y_temporal, N);
 
         if(DEBUG){
             fprintf(stdout, "Iteracion %d\n", iteraciones);
             fprintf(stdout, "Se ha extraido la casilla %d,%d\n", x_temporal, y_temporal);
         }
 
-        
-        
-
-        //int extraer_cola( int *cola_x, int *cola_y, int *x,int *y, int N){
-        extraer_cola(posibles_destinosx, posibles_destinosy, &x_temporal, &y_temporal, N);
 
         // Calculamos a las posiciones que se pueden ir desde la casilla que acabamos de extraer
         // int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int *cola_x, int *cola_y, int **matriz_visitados){
@@ -832,14 +776,14 @@ int main(int argc, char *argv[]){
         //int insertar_matriz_padres(int x_padre, int y_padre, int ***matriz_padres, int iteraccion, int *cola_x, int *cola_y,int N){
         insertar_matriz_padres(posibles_destinos_padres_x[while_contador], posibles_destinos_padres_y[while_contador], matriz_padres, iteraciones, posibles_destinosx, posibles_destinosy, N);
 
-        //Comprobamos si es la meta el punto en el que estamos
+        //Comprobamos si es la meta el punto en el que estamos, ya que si estamos tenemos que acabar el bucle
         if(comprueba_meta(x_temporal, y_temporal, N-1, N-1)){
             // Ponemos la flag a cero
             fprintf(stdout, "\n-> Se ha encontrado la meta. <-\n");
-            flag_continuar = 0;
+            flag_continuar = 0;     // Finalizamos
         }
-        // comprobamos el tamanio del vector de ocupados de la cola
-        // ya que si esta a cero seria una condicion para parar
+
+        // comprobamos el tamanio del vector de ocupados de la cola, ya que esto es otra condicion de parada.
         if(contar_buffer(posibles_destinosx, posibles_destinosy, N) == 0){
             flag_continuar = 0;
         }
@@ -875,23 +819,23 @@ int main(int argc, char *argv[]){
 
         // Incrementamos la iteracion
         iteraciones++;      // Las iteracciones que llevamos/pasos hasta este punto
-
+        while_contador++;   // El contador de bucle while
         
 
-
+        //Si estamos en modo depuracion en cada iteraccion debemos presionar intro
         if(DEBUG){
-            printf("Pulsa algo para seguir\n");
+            printf("Pulsa intro para seguir\n");
             int c = getchar();
         }
-        while_contador++;
-    }
+        
+    }//END WHILE
+
 
     // int reconstruir_camino(int ***matriz_padres, int **ruta, int x_destino, int y_destino, int iteraccion)
     // Reconstruimos la ruta
 
     if(DEBUG){
         // Comprobamos si hay padre de la casilla de destino
-
         fprintf(stdout, "Matriz padres\n");
         fprintf(stdout, "-------------------------\n");
         for(int q=0; q<N; q++){
@@ -925,6 +869,7 @@ int main(int argc, char *argv[]){
 
     
     fprintf(stdout, "\n-------------------------\n");
+    fprintf(stdout, "\nSOLUCION:\n");
     
     if(matriz_padres[N-1][N-1][0] < 0){
         fprintf(stdout, "No hay camino posible\n");
@@ -939,17 +884,51 @@ int main(int argc, char *argv[]){
         mostrar_ruta(matriz_padres, N-1, N-1, N, 0);
         printf("\n");
     }
+
+
+    /*
+
+     int **matriz_visitados;     // Matriz de visitados 0 si no ha sido visitado, 1 si si lo ha sido
+    int *vector_obstaculos;     // Vector que contiene los obstaculos del tablero
+    int **matriz_tablero;       //Matriz que vamos a usar en funcion de las posiciones que nos pase el usuario. Es un puntero a punteros de enteros
+    int *posibles_destinosx;   //En esta matriz vamos a almacenar los posibles destinos
+    int *posibles_destinosy;   //En esta matriz vamos a almacenar los posibles destinos 
+    int *posibles_destinos_padres_x; //En esta matriz vamos a almacenar los posibles destinos padres
+    int *posibles_destinos_padres_y; //En esta matriz vamos a almacenar los posibles destinos padres 
+    int ***matriz_padres
+    */
     
 
-    // Liberamos la memoria solicitada para el tablero.
-    free(matriz_tablero);
-    // Liberamos la memoria solicitada para la matriz de visitados.
+   //Liberamos la memoria de la matriz_visitados
+    for(i=0; i<N; i++){
+        free(matriz_visitados[i]);
+    }
     free(matriz_visitados);
-    // Liberamos la memoria solicitada para la matriz de padres.
-    free(matriz_padres);
-    // Liberamos la memoria solicitada para la cola de posibles destinos.
+    //liberamos la memoria del vector_obstaculos
+    free(vector_obstaculos);
+    //liberamos la memoria de la matriz_tablero
+
+    free(matriz_tablero);
+    //liberamos la memoria del vector posibles_destinosx
     free(posibles_destinosx);
+    //liberamos la memoria del vector posibles_destinosy
     free(posibles_destinosy);
+    //liberamos la memoria del vector posibles_destinos_padres_x
+    free(posibles_destinos_padres_x);
+    //liberamos la memoria del vector posibles_destinos_padres_y
+    free(posibles_destinos_padres_y);
+    //liberamos la memoria de la matriz_padres
+    for(i=0; i<N; i++){
+        for(j=0; j<N; j++){
+            free(matriz_padres[i][j]);
+        }
+        free(matriz_padres[i]);
+    }
+    free(matriz_padres);
+
+    
+
+
 
 
 
