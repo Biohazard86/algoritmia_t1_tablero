@@ -306,7 +306,7 @@ int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int *cola_x,
         int y_temp = y + vector_movimientos[i][1];
         // Si es posible moverse a esa posicion
         if(es_posible(N, x_temp, y_temp, tablero)){     // Si es posible moverse a esa posicion
-            if(matriz_visitados[y_temp][x_temp] != 1 ){  // Si no hemos visitado esa posicion
+            if(matriz_visitados[x_temp][y_temp] != 1 ){  // Si no hemos visitado esa posicion
                 /*
                 fprintf(stdout,"===\n");
                 imprime_tablero(N, tablero);
@@ -319,7 +319,7 @@ int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int *cola_x,
                     //int insertar_cola(int x, int y, int *cola_x, int *cola_y, int N){
                     insertar_cola(x_temp, y_temp, cola_x, cola_y, N);
                     //Lo marcamos como visitado
-                    matriz_visitados[y_temp][x_temp] = 1;
+                    matriz_visitados[x_temp][y_temp] = 1;
                 }
                 /*else if(tablero[x_temp][y_temp] == 1){
                     printf("\nNo se puede mover a esa posicion\n");
