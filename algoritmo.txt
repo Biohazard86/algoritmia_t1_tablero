@@ -117,7 +117,6 @@ Esta funcion extrae de la cola y mueve al resto una posicion menos para que no s
 FUNCION extrae_cola devuelve entero
 	PARAMETROS
 		entero n
-		
 		entero *x, *y, cola_x,cola_y
 		
 	int tam_vector = N*N, i;
@@ -157,34 +156,18 @@ FUNCION guarda_recorrido
 	
 	para i=0 hasta i<tam_cola hacer
 		si (cola_x[i] >= 0) && (cola_y[i] >= 0)
-			
-			si debug
-				mostrar "Se procede a insertar en la matriz de padres."
-			FIN SI
-				
+					
 			x_temp = cola_x[i];
             		y_temp = cola_y[i];
-			
-			
-			
-			si matriz_padres[x_temp][y_temp][0] > 0
-				si debug
-					mostrar "Se procede a insertar en la matriz de padres."
-				FIN SI
-				
-				devuelve 0
-			
+
+			si matriz_padres[x_temp][y_temp][0] > 0		
+				devuelve 0			
 			si no	
-				si debug
-					mostrar "Exito al insertar en la matriz de padres."
-				FIN SI
-			
 				matriz_padres[x_temp][y_temp][0]=iteraccion
 				matriz_padres[x_temp][y_temp][1]=y_padre
 				matriz_padres[x_temp][y_temp][2]=x_padre
 				return 1    
-			fin si
-			
+			fin si	
 		fin si
 			
 	FIN PARA
@@ -216,56 +199,109 @@ FIN FUNCION
 
 ----------------------------------------------------------------------------------------------------------------------
 
-Esta funcion inserta un elemento en la cola. La recorremos hasta encontrarnos un NULL, que es donde insertaremos los nuevos valores. 0 para exito, 1 para error.
-
-FUNCION insertar_cola devuelve entero
-	PARAMETROS
-		entero x, y
-		entero cola[][]
-		
-	para i=0 hasta i=NxN i++
-		si cola[i] == NULL entonces
-			si cola[i+1] entonces
-				cola[i] = x
-				cola[i+1] = y
-				retunr 0
-			si no
-				return 1 ya que hay un error
-			FIN SI
-		FIN SI
-	FIN PARA
-FIN FUNCION
-		
-----------------------------------------------------------------------------------------------------------------------
-
 Esta funcion reconstruye el camino desde el final hasta el inicio
 
 FUNCION reconstruir_camino devuelve entero
 	PARAMETROS
 		entero matriz_padres
-		entero ruta
-		entero x_destino, y_destino, iteraccion
-	VARS
-		entero x_ini, y_ini, x_fin, y_fin, iteraccion_ruta
+		entero x
+		entero y
+		entero N
+		entero contador_saltos
 
-
-	x_ini = x_destino
-	y_ini = y_destino
-
-	mientras x_ini != 0 & y_ini !=0 hacer:
-
-
-
-	FIN mientras
-
-FIN FUNCION
+	si (matriz_padres[x][y][1] < 0) && (matriz_padres[x][y][2] < 0) entonces:
+		imprime x,y
+		imprime contador_saltos
+		devuelve 0
+	else
+		imprime x,y
+		contador_saltos++
+		reconstruir_camino(matriz_padres, matriz_padres[x][y][1], matriz_padres[x][y][2], N, contador_saltos)
+	finelse
 	
 
+FIN FUNCION
 
 
+----------------------------------------------------------------------------------------------------------------------
+
+Esta funcion inserta un elemento en la cola. La recorremos hasta encontrarnos un NULL, que es donde insertaremos los nuevos valores. 0 para exito, 1 para error.
+
+FUNCION insertar_cola devuelve entero
+	PARAMETROS
+		entero x, y
+		entero cola_x
+		entero cola_y
+	VARIABLES
+		entero i
+		entero tam_vector=N*N
+
+	desde i=0 hasta tam_vector i++
+		si (cola_x[i] <0) && (cola_y[i] < 0)
+			cola_x[x] = x
+			cola_y[y] = y
+			return 1
+		finsi
+	find desde
 
 
+FIN FUNCION
 
 
+----------------------------------------------------------------------------------------------------------------------
+
+Funcion principal
+
+FUNCION main
+
+	
+
+	matriz_visitados[x0][y0] = 1
+
+	insertar_cola(x0, y0, posibles_destinosx, posibles_destinosy, N)
+	iteracciones++
+
+	mientras(flag_continuar)
+		x_temporal = posibles_destinosx[0]
+		y_temporal = posibles_destinosy[0]
+
+		extraer_cola(posibles_destinosx, posibles_destinosy, x_temporal, y_temporal, N)
+
+		devueltos_consultados = comprobar_posibles_destinos(N, matriz_tablero, x_temporal, y_temporal, posibles_destinosx, posibles_destinosy matriz_visitados)
+
+		para g=0 hasta g<devueltos_consultados g++
+			insertar_cola(x_temporal, y_temporal, posibles_destinos_padres_x, posibles_destinos_padres_y, N)
+		finpara
+
+		insertar_matriz_padres(posibles_destinos_padres_x[while_contador], posibles_destinos_padres_y[while_contador], matriz_padres, iteracciones, posibles_destinosx, posibles_destinosy, N)
+
+		si (comprueba_meta(x_temporal, y_temporal, n-1, n-1) entonces
+			mostrar "Se ha encontrado la meta)
+			flag_continuar = 0
+		finsi
+
+		si (contar_buffer(posibles_destinosx, posibles_destinosy, N) == 0) entonces
+			flag_continuar = 0
+		finsi
+
+		iteracciones++
+		while_contador++
+
+	finmientras
+		
+
+	mostrar "Solucion:"
+	
+	si (matriz_padres[n-1][n-1][0] < 0) entonces
+		mostrar "no hay camino posible"
+		devuelve 0
+
+	si no entonces
+		mostrar "la ruta de fin a inicio es:"
+		mostrar_ruta(matriz_padres, n-1, n-1,N,0)
+	finsino
 
 
+	//Liberamos memoria
+		
+		
