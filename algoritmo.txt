@@ -33,6 +33,7 @@ ALGORITMO
 
 PSEUDOCODIGO
 ----------------------------------------------------------------------------------------------------------------------
+//Cambiar cola por cola_x y cola_y, y cambviar matriz padres por matriz visitados
 
 Con esta funcion comprobamos todos los posibles destinos a los que podemos ir desde un punto dado.
 FUNCION calcular_posibles_destinos devuelve entero
@@ -40,10 +41,11 @@ FUNCION calcular_posibles_destinos devuelve entero
 		entero N
 		entero tablero[][]
 		entero x, y
-		int cola[][]
-		int matriz_padres[][][]
+		int *cola_x, *cola_y,
+		int matriz_visitados[][]
 		para llevar un control de si se ha podido acceder a alguna posicion o no entonces vamos a crear la siguiente var
-		int posible_mover = 0
+		
+	int posible_mover = 0
 
 	entero vector_movimientos[8][2] = {{1,2},{2,1},{2,-1},{1,-2},{-1,2},{-2,1},{-2,-1},{-1,-2}}
 	
@@ -51,16 +53,21 @@ FUNCION calcular_posibles_destinos devuelve entero
 		x_temp = x + vector_movimientos[i][0]
 		y_temp = y + vector_movimientos[i][1]
 		si es_posible(N, x_temp, y_temp, tablero[][])
-			posibles_destinos[i][0] = x_temp
-			posibles_destinos[i][1] = y_temp
-			posible_mover++
-		FINSI
+			si matriz_visitados[y_temp][x_temp] != 1
+				si tablero[y_temp][x_temp] != 1
+					insertar_cola(x_temp, y_temp, cola_x, cola_y, N)
+					matriz_visitados[y_temp][x_temp] = 1;
+					
+					posible_mover++
+				FINSI
+			FINSI
+		FINSI		
 	FIN DESDE
 	
-	si posible_mover != 0 entonces
-		return 1
+	si posible_mover == 0 entonces
+		return posible_mover
 	si no
-		return 0
+		return posible_mover
 	FINSI
 	
 FIN FUNCION
@@ -68,6 +75,8 @@ FIN FUNCION
 ----------------------------------------------------------------------------------------------------------------------
 
 Esta funcion ayuda a la anterior a saber si un punto es un obstaculo o si esta dentro del rango de NxN
+
+
 FUNCION es_posible devuelve entero
 	PARAMETROS 
 		entero N
@@ -88,15 +97,16 @@ FIN FUNCION
 ----------------------------------------------------------------------------------------------------------------------
 
 Esta funcion comprueba si ya ha sido visitado para si poderlo ingnorar
+
 FUNCION comprueba_visitado devuelve entero
 	PARAMETROS:
-		entero x, y
-		entero tabla_visitados[][]
+		entero x, y, N
+		entero matriz_padres[][]
 		
-	si tabla_visitados[x][y] == NULL entonces
-		devuelve 0
-	si no
+	si matriz_padres[x][y][0] != 1 entonces
 		devuelve 1
+	si no
+		devuelve 0
 	FINSI
 	
 FINFUNCION
@@ -107,17 +117,28 @@ Esta funcion extrae de la cola y mueve al resto una posicion menos para que no s
 FUNCION extrae_cola devuelve entero
 	PARAMETROS
 		entero n
-		entero cola[][]
-		entero *x, *y
 		
-	*x = cola[0]
-	*y = cola[1]
+		entero *x, *y, cola_x,cola_y
 		
-	desde i=0 hasta n-1 hacer
+	int tam_vector = N*N, i;
+	
+	si cola_x[0] >= 0 && cola_y[0] >= 0
+		*x = cola_x[0];
+        	*y = cola_y[0];
+	si no
+		devuelve 0
+		
+	para i=0 hasta i<tam_vector hacer
 		//En cada iteraccion aumentamos dos
-		SIN ACABAR
+		si cola_x[i] >= 0) && (cola_y[i] >= 0
+			cola_x[i] = cola_x[i+1];
+            		cola_y[i] = cola_y[i+1];
+		si no
+		
+			cola_x[i] = -1;
+			cola_y[i] = -1;
 
-	FIN DESDE		
+	FIN PARA		
 FUN FUNCION
 
 ----------------------------------------------------------------------------------------------------------------------
@@ -126,17 +147,53 @@ Con esta funcion guardamos en la matriz NxNx2 los datos
 
 FUNCION guarda_recorrido
 	PARAMETROS
-		entero iteraccion
-		entero posicion_x, posicion_y
+		entero iteraccion, N
+		entero cola_X, cola_y
 		entero padre_x, padre_y //Casilla de la que viene
-		entero tabla_ruta[][][]
-		entero tablero[][]
+		entero matriz_padres[][][]
+		
+	int x_temp,y_temp, tam_cola = N*N, i
+	
+	
+	para i=0 hasta i<tam_cola hacer
+		si (cola_x[i] >= 0) && (cola_y[i] >= 0)
+			
+			si debug
+				mostrar "Se procede a insertar en la matriz de padres."
+			FIN SI
+				
+			x_temp = cola_x[i];
+            		y_temp = cola_y[i];
+			
+			
+			
+			si matriz_padres[x_temp][y_temp][0] > 0
+				si debug
+					mostrar "Se procede a insertar en la matriz de padres."
+				FIN SI
+				
+				devuelve 0
+			
+			si no	
+				si debug
+					mostrar "Exito al insertar en la matriz de padres."
+				FIN SI
+			
+				matriz_padres[x_temp][y_temp][0]=iteraccion
+				matriz_padres[x_temp][y_temp][1]=y_padre
+				matriz_padres[x_temp][y_temp][2]=x_padre
+				return 1    
+			fin si
+			
+		fin si
+			
+	FIN PARA
 	
 	tabla_ruta[posicion_x][posicion_y][0] = iteracion
 	tabla_ruta[posicion_x][posicion_y][1] = padre_x
 	tabla_ruta[posicion_x][posicion_y][2] = padre_y
 	
-	tablero[posicion_x][posicion_y] = 1
+	tablero[posicion_x][posicion_y] = 1 
 	
 FIN FUNCION
 
