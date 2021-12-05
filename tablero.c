@@ -43,7 +43,6 @@ ALGORITMO
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <stdio.h>
 #include <sys/time.h>
 
 #define NO_OBSTACULO 6 // Probabilidad de que una casilla no sea obstaculo (0-10)
