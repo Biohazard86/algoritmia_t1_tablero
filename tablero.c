@@ -308,12 +308,15 @@ int comprobar_posibles_destinos(int N, int **tablero, int x, int y, int *cola_x,
         // Si es posible moverse a esa posicion
         if(es_posible(N, y_temp, x_temp, tablero)){     // Si es posible moverse a esa posicion
             if(matriz_visitados[y_temp][x_temp] != 1 ){  // Si no hemos visitado esa posicion
+                if(DEBUG){
+                 fprintf(stdout,"===\n");
+                 imprime_tablero(N, tablero);
+                 fprintf(stdout,"===\n");
+                 fprintf(stdout,"%d -> %d,%d\n", tablero[y_temp][x_temp], x_temp, y_temp);
+                 fprintf(stdout,"===\n");
                 
-                fprintf(stdout,"===\n");
-                imprime_tablero(N, tablero);
-                fprintf(stdout,"===\n");
-                fprintf(stdout,"%d -> %d,%d\n", tablero[y_temp][x_temp], x_temp, y_temp);
-                fprintf(stdout,"===\n");
+                }
+                
                 
                 if(tablero[y_temp][x_temp] != 1){
                     posible_mover++;
