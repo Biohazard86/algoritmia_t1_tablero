@@ -1,3 +1,4 @@
+
 // Trabajo 1 - Algoritmia
 // Autores: David Barrios Portales & Sergios Barrios Portales
 // Fecha: 23/11/2021
@@ -42,6 +43,9 @@ ALGORITMO
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
+#include <sys/time.h>
+
 #define NO_OBSTACULO 6 // Probabilidad de que una casilla no sea obstaculo (0-10)
 #define FALSE 0
 #define TRUE 1
@@ -609,6 +613,9 @@ int main(int argc, char *argv[]){
     int devueltos_consultados;  // Contador de los devueltos consultados por la funcion que calcula a cuales se puede ir
     int *nada;
     int while_contador = 0;
+    
+    struct timeval stop, start;
+    
 
     // Presentacion del programa
     presentacion();
@@ -736,6 +743,7 @@ int main(int argc, char *argv[]){
     //----------------------------------------------------------------------------------------------------------------------
 
     fprintf(stdout, "\nComienza el algoritmo...\n");
+    gettimeofday(&start, NULL);
 
     // Ponemos la casilla de salida como visitada
     matriz_visitados[x0][y0] = 1;
@@ -897,9 +905,8 @@ int main(int argc, char *argv[]){
         printf("\n");
     }
 
-
+    
     /*
-
      int **matriz_visitados;     // Matriz de visitados 0 si no ha sido visitado, 1 si si lo ha sido
     int *vector_obstaculos;     // Vector que contiene los obstaculos del tablero
     int **matriz_tablero;       //Matriz que vamos a usar en funcion de las posiciones que nos pase el usuario. Es un puntero a punteros de enteros
@@ -910,7 +917,10 @@ int main(int argc, char *argv[]){
     int ***matriz_padres
     */
     
-
+    gettimeofday(&stop, NULL);
+    
+    printf("Ha llevado: %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+    
    //Liberamos la memoria de la matriz_visitados
     for(i=0; i<N; i++){
         free(matriz_visitados[i]);
